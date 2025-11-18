@@ -104,8 +104,9 @@ export default function ErrorReporter({ error, reset }: ReporterProps) {
               Something went wrong!
             </h1>
             <p className="text-muted-foreground">
-              An unexpected error occurred. Please try again fixing with Orchids
+              An unexpected error occurred. Please try again or contact
             </p>
+            <span><a href="https://x.com/hebuildapps">dev 🔗</a></span>
           </div>
           <div className="space-y-2">
             {process.env.NODE_ENV === "development" && (

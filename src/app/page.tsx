@@ -1,15 +1,28 @@
 "use client";
 
 import { useState } from "react";
+import { Clock, List } from "lucide-react";
 import { SessionSetup } from "@/components/SessionSetup";
 import { LockInTimer } from "@/components/LockInTimer";
 import { ProgressBar } from "@/components/ProgressBar";
-import { AchievementBadges, unlockAchievement } from "@/components/AchievementBadges";
+import {
+  AchievementBadges,
+  unlockAchievement,
+} from "@/components/AchievementBadges";
 import { CompletionCelebration } from "@/components/CompletionCelebration";
+import { SessionHistory } from "@/components/SessionHistory";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ReducedMotionToggle } from "@/components/ReducedMotionToggle";
 
-type SessionState = "setup" | "active" | "completed";
+type SessionState = "setup" | "active" | "completed" | "history";
+
+interface CompletedSession {
+  id: string;
+  goal: string;
+  duration: number;
+  completedAt: Date;
+  usedReset: boolean;
+}
 
 export default function Home() {
   const [sessionState, setSessionState] = useState<SessionState>("setup");
@@ -31,28 +44,50 @@ export default function Home() {
     setUsedReset(true);
   };
 
+  const saveSessionToHistory = (
+    sessionGoal: string,
+    sessionDuration: number,
+    sessionUsedReset: boolean
+  ) => {
+    const newSession: CompletedSession = {
+      id: Date.now().toString(),
+      goal: sessionGoal,
+      duration: sessionDuration,
+      completedAt: new Date(),
+      usedReset: sessionUsedReset,
+    };
+
+    const existingSessions = localStorage.getItem("lockInSessions");
+    const sessions = existingSessions ? JSON.parse(existingSessions) : [];
+    sessions.push(newSession);
+    localStorage.setItem("lockInSessions", JSON.stringify(sessions));
+  };
+
   const handleCompleteSession = () => {
     setSessionState("completed");
-    
+
+    // Save session to history
+    saveSessionToHistory(goal, duration, usedReset);
+
     const newCompletedCount = completedSessions + 1;
     setCompletedSessions(newCompletedCount);
-    
+
     if (newCompletedCount === 1) {
       unlockAchievement("first-lockin");
     }
-    
+
     if (!usedReset) {
       unlockAchievement("no-reset");
     }
-    
+
     if (newCompletedCount >= 3) {
       unlockAchievement("streak-starter");
     }
-    
+
     if (duration === 18) {
       unlockAchievement("marathon");
     }
-    
+
     window.dispatchEvent(new Event("storage"));
   };
 
@@ -65,14 +100,30 @@ export default function Home() {
     setProgress(newProgress);
   };
 
+  const handleShowHistory = () => {
+    setSessionState("history");
+  };
+
+  const handleBackFromHistory = () => {
+    setSessionState("setup");
+  };
+
   return (
     <main className="min-h-screen relative">
       {sessionState !== "active" && (
-        <div 
+        <div
           className="absolute top-4 right-4 flex gap-2 z-10"
           role="toolbar"
-          aria-label="Theme and accessibility controls"
+          aria-label="Navigation and accessibility controls"
         >
+          <button
+            onClick={handleShowHistory}
+            className="neo-border bg-background text-foreground p-3 transition-all hover:translate-x-1 hover:translate-y-1 hover:shadow-none neo-shadow-sm"
+            aria-label="View session history"
+            title="Session History"
+          >
+            <List className="w-5 h-5" />
+          </button>
           <ReducedMotionToggle />
           <ThemeToggle />
         </div>
@@ -111,11 +162,17 @@ export default function Home() {
             />
           </>
         )}
+
+        {sessionState === "history" && (
+          <SessionHistory onBack={handleBackFromHistory} />
+        )}
       </div>
 
       <div className="sr-only" role="status" aria-live="polite">
-        {sessionState === "setup" && "Session setup page. Use Tab to navigate between controls."}
-        {sessionState === "active" && "Lock-in session active. Timer is running."}
+        {sessionState === "setup" &&
+          "Session setup page. Use Tab to navigate between controls."}
+        {sessionState === "active" &&
+          "Lock-in session active. Timer is running."}
         {sessionState === "completed" && "Session completed! Congratulations!"}
       </div>
     </main>

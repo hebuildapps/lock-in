@@ -36,7 +36,10 @@ export function SessionSetup({ onStart }: SessionSetupProps) {
       <form onSubmit={handleSubmit} className="w-full space-y-8">
         {/* Goal Input */}
         <div className="space-y-4">
-          <label htmlFor="goal" className="text-2xl font-bold block text-center">
+          <label
+            htmlFor="goal"
+            className="text-2xl font-bold block text-center"
+          >
             WHAT'S YOUR GOAL?
           </label>
           <input
