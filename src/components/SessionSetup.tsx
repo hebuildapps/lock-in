@@ -25,7 +25,7 @@ export function SessionSetup({ onStart }: SessionSetupProps) {
   return (
     <div className="flex flex-col items-center justify-center gap-8 w-full max-w-4xl mx-auto p-8">
       <div className="text-center mb-8">
-        <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold mb-4 tracking-tight">
+        <h1 className="text-5xl md:text-7xl pt-12 lg:text-8xl font-bold mb-4 tracking-tight">
           LOCK-IN
         </h1>
         <p className="text-xl md:text-2xl text-muted-foreground">
