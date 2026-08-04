@@ -2,14 +2,22 @@
 
 import { useState } from "react";
 import { Minus, Plus } from "lucide-react";
+import type { UiMode, ZenTheme } from "@/lib/zen/types";
 
 interface SessionSetupProps {
-  onStart: (duration: number, goal: string) => void;
+  onStart: (
+    duration: number,
+    goal: string,
+    mode: UiMode,
+    zenTheme: ZenTheme
+  ) => void;
 }
 
 export function SessionSetup({ onStart }: SessionSetupProps) {
   const [duration, setDuration] = useState(18);
   const [goal, setGoal] = useState("");
+  const [uiMode, setUiMode] = useState<UiMode>("normal");
+  const [zenTheme, setZenTheme] = useState<ZenTheme>("fire");
 
   const handleDurationChange = (increment: number) => {
     setDuration((prev) => Math.max(1, Math.min(18, prev + increment)));
@@ -18,7 +26,7 @@ export function SessionSetup({ onStart }: SessionSetupProps) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (goal.trim()) {
-      onStart(duration, goal);
+      onStart(duration, goal, uiMode, zenTheme);
     }
   };
 
@@ -34,13 +42,12 @@ export function SessionSetup({ onStart }: SessionSetupProps) {
       </div>
 
       <form onSubmit={handleSubmit} className="w-full space-y-8">
-        {/* Goal Input */}
         <div className="space-y-4">
           <label
             htmlFor="goal"
             className="text-2xl font-bold block text-center"
           >
-            WHAT'S YOUR GOAL?
+            WHAT&apos;S YOUR GOAL?
           </label>
           <input
             id="goal"
@@ -59,7 +66,6 @@ export function SessionSetup({ onStart }: SessionSetupProps) {
           </p>
         </div>
 
-        {/* Duration Selector */}
         <div className="space-y-4">
           <label className="text-2xl font-bold block text-center">
             SESSION DURATION
@@ -96,7 +102,73 @@ export function SessionSetup({ onStart }: SessionSetupProps) {
           </div>
         </div>
 
-        {/* Start Button */}
+        <div className="space-y-4">
+          <label className="text-2xl font-bold block text-center">
+            SESSION MODE
+          </label>
+          <div
+            className="flex flex-col sm:flex-row items-stretch justify-center gap-4"
+            role="group"
+            aria-label="Choose session mode"
+          >
+            <button
+              type="button"
+              onClick={() => setUiMode("normal")}
+              className={`neo-border px-8 py-6 text-xl font-bold transition-all flex-1 max-w-xs mx-auto sm:mx-0 ${
+                uiMode === "normal"
+                  ? "bg-[var(--neo-yellow)] neo-shadow"
+                  : "bg-muted hover:translate-x-1 hover:translate-y-1 hover:shadow-none neo-shadow-sm"
+              }`}
+              aria-pressed={uiMode === "normal"}
+            >
+              NORMAL
+            </button>
+            <button
+              type="button"
+              onClick={() => setUiMode("zen")}
+              className={`neo-border px-8 py-6 text-xl font-bold transition-all flex-1 max-w-xs mx-auto sm:mx-0 ${
+                uiMode === "zen"
+                  ? "bg-[var(--neo-pink)] neo-shadow"
+                  : "bg-muted hover:translate-x-1 hover:translate-y-1 hover:shadow-none neo-shadow-sm"
+              }`}
+              aria-pressed={uiMode === "zen"}
+            >
+              ZEN
+            </button>
+          </div>
+
+          {uiMode === "zen" && (
+            <div className="flex items-center justify-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setZenTheme("fire")}
+                className={`neo-border px-6 py-3 text-sm font-bold ${
+                  zenTheme === "fire" ? "bg-[var(--neo-orange)]" : "bg-muted"
+                }`}
+                aria-pressed={zenTheme === "fire"}
+              >
+                FIRE
+              </button>
+              <button
+                type="button"
+                onClick={() => setZenTheme("rain")}
+                className={`neo-border px-6 py-3 text-sm font-bold ${
+                  zenTheme === "rain" ? "bg-[var(--neo-cyan)]" : "bg-muted"
+                }`}
+                aria-pressed={zenTheme === "rain"}
+              >
+                RAIN
+              </button>
+            </div>
+          )}
+
+          <p className="text-center text-xs md:text-sm text-muted-foreground max-w-xl mx-auto leading-relaxed">
+            In session: <strong>N</strong> normal · <strong>Z</strong> zen ·{" "}
+            <strong>F</strong>/<strong>R</strong> fire/rain · <strong>M</strong>{" "}
+            mute · <strong>1–4</strong> wind/rain/fire/cafe audio
+          </p>
+        </div>
+
         <div className="text-center">
           <button
             type="submit"
@@ -109,7 +181,6 @@ export function SessionSetup({ onStart }: SessionSetupProps) {
         </div>
       </form>
 
-      {/* Info Box */}
       <div className="neo-border bg-[var(--neo-orange)] p-6 w-full">
         <h3 className="text-xl font-bold mb-3">⚠️ SESSION RULES:</h3>
         <ul className="space-y-2 text-sm md:text-base">

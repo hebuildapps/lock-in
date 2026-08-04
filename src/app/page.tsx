@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { Clock, List } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { List } from "lucide-react";
 import { SessionSetup } from "@/components/SessionSetup";
 import { LockInTimer } from "@/components/LockInTimer";
 import { ProgressBar } from "@/components/ProgressBar";
@@ -13,6 +13,11 @@ import { CompletionCelebration } from "@/components/CompletionCelebration";
 import { SessionHistory } from "@/components/SessionHistory";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ReducedMotionToggle } from "@/components/ReducedMotionToggle";
+import { ZenBackground } from "@/components/ZenBackground";
+import { useTheme } from "@/components/ThemeProvider";
+import { useZenKeyboard } from "@/hooks/useZenKeyboard";
+import { getAmbientEngine } from "@/lib/zen/ambientAudio";
+import type { AmbientTrack, UiMode, ZenTheme } from "@/lib/zen/types";
 
 type SessionState = "setup" | "active" | "completed" | "history";
 
@@ -31,10 +36,59 @@ export default function Home() {
   const [progress, setProgress] = useState(0);
   const [usedReset, setUsedReset] = useState(false);
   const [completedSessions, setCompletedSessions] = useState(0);
+  const [uiMode, setUiMode] = useState<UiMode>("normal");
+  const [zenTheme, setZenTheme] = useState<ZenTheme>("fire");
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [activeTrack, setActiveTrack] = useState<AmbientTrack | null>(null);
+  const { reducedMotion } = useTheme();
 
-  const handleStartSession = (sessionDuration: number, sessionGoal: string) => {
+  const handleAmbientTrack = useCallback((track: AmbientTrack) => {
+    const engine = getAmbientEngine();
+    if (!engine) return;
+    const next = engine.toggleTrack(track);
+    setActiveTrack(next);
+  }, []);
+
+  useZenKeyboard({
+    enabled: sessionState === "active",
+    uiMode,
+    setUiMode,
+    setZenTheme,
+    soundEnabled,
+    setSoundEnabled,
+    onAmbientTrack: handleAmbientTrack,
+  });
+
+  useEffect(() => {
+    const engine = getAmbientEngine();
+    if (!engine) return;
+    engine.setEnabled(soundEnabled);
+    if (!soundEnabled) setActiveTrack(null);
+  }, [soundEnabled]);
+
+  useEffect(() => {
+    if (sessionState !== "active") {
+      getAmbientEngine()?.stopAll();
+      setActiveTrack(null);
+    }
+  }, [sessionState]);
+
+  useEffect(() => {
+    return () => {
+      getAmbientEngine()?.stopAll();
+    };
+  }, []);
+
+  const handleStartSession = (
+    sessionDuration: number,
+    sessionGoal: string,
+    mode: UiMode,
+    theme: ZenTheme
+  ) => {
     setDuration(sessionDuration);
     setGoal(sessionGoal);
+    setUiMode(mode);
+    setZenTheme(theme);
     setSessionState("active");
     setProgress(0);
     setUsedReset(false);
@@ -65,8 +119,9 @@ export default function Home() {
 
   const handleCompleteSession = () => {
     setSessionState("completed");
+    getAmbientEngine()?.stopAll();
+    setActiveTrack(null);
 
-    // Save session to history
     saveSessionToHistory(goal, duration, usedReset);
 
     const newCompletedCount = completedSessions + 1;
@@ -108,8 +163,21 @@ export default function Home() {
     setSessionState("setup");
   };
 
+  const isZen = sessionState === "active" && uiMode === "zen";
+
   return (
-    <main className="min-h-screen relative">
+    <main
+      className={`min-h-screen relative ${isZen ? "zen-active" : ""}`}
+      data-zen={isZen ? "true" : undefined}
+    >
+      {isZen && (
+        <ZenBackground
+          theme={zenTheme}
+          reducedMotion={reducedMotion}
+          playing
+        />
+      )}
+
       {sessionState !== "active" && (
         <div
           className="absolute top-4 right-4 flex gap-2 z-10"
@@ -129,7 +197,27 @@ export default function Home() {
         </div>
       )}
 
-      <div className="container mx-auto min-h-screen flex flex-col items-center justify-center py-8 px-4">
+      {sessionState === "active" && (
+        <div className="zen-shortcut-hud" aria-hidden="true">
+          <span>N normal</span>
+          <span>Z zen</span>
+          {uiMode === "zen" && (
+            <>
+              <span className={zenTheme === "fire" ? "is-on" : ""}>F fire</span>
+              <span className={zenTheme === "rain" ? "is-on" : ""}>R rain</span>
+            </>
+          )}
+          <span className={!soundEnabled ? "is-on" : ""}>M mute</span>
+          <span className={activeTrack === "wind" ? "is-on" : ""}>1 wind</span>
+          <span className={activeTrack === "rain" ? "is-on" : ""}>2 rain</span>
+          <span className={activeTrack === "fireplace" ? "is-on" : ""}>
+            3 fire
+          </span>
+          <span className={activeTrack === "cafe" ? "is-on" : ""}>4 cafe</span>
+        </div>
+      )}
+
+      <div className="container mx-auto min-h-screen flex flex-col items-center justify-center py-8 px-4 relative z-10">
         {sessionState === "setup" && (
           <>
             <SessionSetup onStart={handleStartSession} />
@@ -172,7 +260,9 @@ export default function Home() {
         {sessionState === "setup" &&
           "Session setup page. Use Tab to navigate between controls."}
         {sessionState === "active" &&
-          "Lock-in session active. Timer is running."}
+          `Lock-in session active. Mode ${uiMode}. Sound ${
+            soundEnabled ? "on" : "muted"
+          }.`}
         {sessionState === "completed" && "Session completed! Congratulations!"}
       </div>
     </main>

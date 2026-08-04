@@ -186,3 +186,86 @@
 nextjs-portal {
   display: none !important;
 }
+
+/* Zen mode — square corners only, ASCII ambient layer */
+.zen-active {
+  background: #0a0a0a;
+}
+
+.zen-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  background: #0a0a0a;
+}
+
+.zen-ascii-bg {
+  position: absolute;
+  inset: 0;
+  font-size: 12px;
+  font-family: monospace;
+  line-height: 1;
+  white-space: pre;
+  overflow: hidden;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+.zen-ascii-bg pre {
+  margin: 0;
+  transform: translateY(60px);
+  border-radius: 0;
+}
+
+.zen-ascii-bg .zen-fallback {
+  color: #888;
+  font-family: "Space Mono", monospace;
+  font-size: 0.85rem;
+  text-align: center;
+  padding: 1rem;
+}
+
+.zen-ascii-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: color-dodge;
+  z-index: 2;
+  border-radius: 0;
+}
+
+.zen-shortcut-hud {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  z-index: 20;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  max-width: min(420px, calc(100vw - 2rem));
+  justify-content: flex-end;
+  pointer-events: none;
+  font-family: "Space Mono", monospace;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.zen-shortcut-hud span {
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #888;
+  padding: 0.25rem 0.45rem;
+  border-radius: 0;
+}
+
+.zen-shortcut-hud span.is-on {
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.1);
+}
