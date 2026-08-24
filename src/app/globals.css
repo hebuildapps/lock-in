@@ -238,34 +238,3 @@ nextjs-portal {
   z-index: 2;
   border-radius: 0;
 }
-
-.zen-shortcut-hud {
-  position: fixed;
-  bottom: 1rem;
-  right: 1rem;
-  z-index: 20;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-  max-width: min(420px, calc(100vw - 2rem));
-  justify-content: flex-end;
-  pointer-events: none;
-  font-family: "Space Mono", monospace;
-  font-size: 0.65rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.zen-shortcut-hud span {
-  background: rgba(0, 0, 0, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #888;
-  padding: 0.25rem 0.45rem;
-  border-radius: 0;
-}
-
-.zen-shortcut-hud span.is-on {
-  color: #fff;
-  border-color: rgba(255, 255, 255, 0.35);
-  background: rgba(255, 255, 255, 0.1);
-}

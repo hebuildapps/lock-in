@@ -16,10 +16,15 @@ import { ReducedMotionToggle } from "@/components/ReducedMotionToggle";
 import { ZenBackground } from "@/components/ZenBackground";
 import { useTheme } from "@/components/ThemeProvider";
 import { useZenKeyboard } from "@/hooks/useZenKeyboard";
+import { FloatingControls } from "@/components/FloatingControls";
+import { SettingsModal } from "@/components/SettingsModal";
 import { getAmbientEngine } from "@/lib/zen/ambientAudio";
+import { AMBIENT_TRACKS } from "@/lib/zen/types";
 import type { AmbientTrack, UiMode, ZenTheme } from "@/lib/zen/types";
 
 type SessionState = "setup" | "active" | "completed" | "history";
+
+type SettingsTab = "general" | "sound" | "keyboard" | "about";
 
 interface CompletedSession {
   id: string;
@@ -28,6 +33,11 @@ interface CompletedSession {
   completedAt: Date;
   usedReset: boolean;
 }
+
+const THEME_TIMER_COLORS: Record<ZenTheme, string> = {
+  fire: "#ff7800",
+  rain: "#5078c8",
+};
 
 export default function Home() {
   const [sessionState, setSessionState] = useState<SessionState>("setup");
@@ -39,14 +49,29 @@ export default function Home() {
   const [uiMode, setUiMode] = useState<UiMode>("normal");
   const [zenTheme, setZenTheme] = useState<ZenTheme>("fire");
   const [soundEnabled, setSoundEnabled] = useState(true);
-  const [activeTrack, setActiveTrack] = useState<AmbientTrack | null>(null);
-  const { reducedMotion } = useTheme();
+  const [activeTracks, setActiveTracks] = useState<AmbientTrack[]>([]);
+  const [volume, setVolume] = useState(() =>
+    typeof window === "undefined" ? 0.5 : getAmbientEngine()?.getVolume() ?? 0.5
+  );
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [settingsTab, setSettingsTab] = useState<SettingsTab>("general");
+  const { reducedMotion, setReducedMotion, theme, setTheme } = useTheme();
 
   const handleAmbientTrack = useCallback((track: AmbientTrack) => {
     const engine = getAmbientEngine();
     if (!engine) return;
     const next = engine.toggleTrack(track);
-    setActiveTrack(next);
+    setActiveTracks(next ?? []);
+  }, []);
+
+  const handleVolumeChange = useCallback((nextVolume: number) => {
+    setVolume(nextVolume);
+    getAmbientEngine()?.setVolume(nextVolume);
+  }, []);
+
+  const openSettings = useCallback((tab: SettingsTab) => {
+    setSettingsTab(tab);
+    setSettingsOpen(true);
   }, []);
 
   useZenKeyboard({
@@ -63,13 +88,13 @@ export default function Home() {
     const engine = getAmbientEngine();
     if (!engine) return;
     engine.setEnabled(soundEnabled);
-    if (!soundEnabled) setActiveTrack(null);
+    if (!soundEnabled) setActiveTracks([]);
   }, [soundEnabled]);
 
   useEffect(() => {
     if (sessionState !== "active") {
       getAmbientEngine()?.stopAll();
-      setActiveTrack(null);
+      setActiveTracks([]);
     }
   }, [sessionState]);
 
@@ -92,6 +117,7 @@ export default function Home() {
     setSessionState("active");
     setProgress(0);
     setUsedReset(false);
+    setSettingsOpen(false);
   };
 
   const handleResetUsed = () => {
@@ -120,7 +146,7 @@ export default function Home() {
   const handleCompleteSession = () => {
     setSessionState("completed");
     getAmbientEngine()?.stopAll();
-    setActiveTrack(null);
+    setActiveTracks([]);
 
     saveSessionToHistory(goal, duration, usedReset);
 
@@ -197,26 +223,6 @@ export default function Home() {
         </div>
       )}
 
-      {sessionState === "active" && (
-        <div className="zen-shortcut-hud" aria-hidden="true">
-          <span>N normal</span>
-          <span>Z zen</span>
-          {uiMode === "zen" && (
-            <>
-              <span className={zenTheme === "fire" ? "is-on" : ""}>F fire</span>
-              <span className={zenTheme === "rain" ? "is-on" : ""}>R rain</span>
-            </>
-          )}
-          <span className={!soundEnabled ? "is-on" : ""}>M mute</span>
-          <span className={activeTrack === "wind" ? "is-on" : ""}>1 wind</span>
-          <span className={activeTrack === "rain" ? "is-on" : ""}>2 rain</span>
-          <span className={activeTrack === "fireplace" ? "is-on" : ""}>
-            3 fire
-          </span>
-          <span className={activeTrack === "cafe" ? "is-on" : ""}>4 cafe</span>
-        </div>
-      )}
-
       <div className="container mx-auto min-h-screen flex flex-col items-center justify-center py-8 px-4 relative z-10">
         {sessionState === "setup" && (
           <>
@@ -227,7 +233,7 @@ export default function Home() {
           </>
         )}
 
-        {sessionState === "active" && (
+        {sessionState === "active" && !isZen && (
           <div className="w-full space-y-8">
             <LockInTimer
               duration={duration}
@@ -235,9 +241,23 @@ export default function Home() {
               onComplete={handleCompleteSession}
               onProgress={handleProgress}
               onResetUsed={handleResetUsed}
+              zenActive={false}
             />
             <ProgressBar progress={progress} />
           </div>
+        )}
+
+        {sessionState === "active" && isZen && (
+          <LockInTimer
+            duration={duration}
+            goal={goal}
+            onComplete={handleCompleteSession}
+            onProgress={handleProgress}
+            onResetUsed={handleResetUsed}
+            zenActive={true}
+            showTimer={false}
+            timerColor={THEME_TIMER_COLORS[zenTheme]}
+          />
         )}
 
         {sessionState === "completed" && (
@@ -265,6 +285,28 @@ export default function Home() {
           }.`}
         {sessionState === "completed" && "Session completed! Congratulations!"}
       </div>
+
+      <FloatingControls
+        soundEnabled={soundEnabled}
+        onOpenSettings={() => openSettings("sound")}
+      />
+
+      <SettingsModal
+        key={settingsOpen ? "open" : "closed"}
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        initialTab={settingsTab}
+        soundEnabled={soundEnabled}
+        onSoundChange={setSoundEnabled}
+        activeTracks={activeTracks}
+        onToggleTrack={handleAmbientTrack}
+        volume={volume}
+        onVolumeChange={handleVolumeChange}
+        theme={theme}
+        onThemeChange={setTheme}
+        reducedMotion={reducedMotion}
+        onReducedMotionChange={setReducedMotion}
+      />
     </main>
   );
 }
