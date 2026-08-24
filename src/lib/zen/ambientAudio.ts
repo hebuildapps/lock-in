@@ -1,4 +1,5 @@
 import type { AmbientTrack } from "./types";
+import { AMBIENT_TRACKS } from "./types";
 
 type AmbientNode = {
   stop: () => void;
@@ -11,7 +12,6 @@ class AmbientAudioEngine {
   private nodes: Partial<Record<AmbientTrack, AmbientNode>> = {};
   private soundEnabled = true;
   private volume = 0.5;
-  private activeTrack: AmbientTrack | null = null;
 
   ensureAudio() {
     if (this.audioCtx) return;
@@ -41,8 +41,12 @@ class AmbientAudioEngine {
     this.applyMaster();
   }
 
-  getActiveTrack() {
-    return this.activeTrack;
+  getVolume() {
+    return this.volume;
+  }
+
+  getActiveTracks() {
+    return AMBIENT_TRACKS.filter((t) => this.nodes[t]);
   }
 
   private applyMaster() {
@@ -71,29 +75,25 @@ class AmbientAudioEngine {
     if (!node) return;
     node.stop();
     delete this.nodes[key];
-    if (this.activeTrack === key) this.activeTrack = null;
   }
 
   stopAll() {
     (Object.keys(this.nodes) as AmbientTrack[]).forEach((k) => this.stop(k));
-    this.activeTrack = null;
   }
 
-  /** Switch to a single track (exclusive). Same key again stops it. */
+  /** Toggle a single track on/off. Other tracks keep playing (multi-track). */
   toggleTrack(key: AmbientTrack) {
     if (!this.soundEnabled) return null;
-    if (this.activeTrack === key) {
+    if (this.nodes[key]) {
       this.stop(key);
-      return null;
+    } else {
+      this.start(key);
     }
-    this.stopAll();
-    this.start(key);
-    return key;
+    return this.getActiveTracks();
   }
 
   playTrack(key: AmbientTrack) {
     if (!this.soundEnabled) return;
-    this.stopAll();
     this.start(key);
   }
 
@@ -342,7 +342,6 @@ class AmbientAudioEngine {
     }
 
     this.nodes[key] = { stop: stopFn, gainNode: outGain };
-    this.activeTrack = key;
   }
 
   destroy() {
