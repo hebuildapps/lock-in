@@ -10,9 +10,21 @@ interface LockInTimerProps {
   onComplete: () => void;
   onProgress: (progress: number) => void;
   onResetUsed?: () => void;
+  zenActive?: boolean;
+  showTimer?: boolean;
+  timerColor?: string;
 }
 
-export function LockInTimer({ duration, goal, onComplete, onProgress, onResetUsed }: LockInTimerProps) {
+export function LockInTimer({
+  duration,
+  goal,
+  onComplete,
+  onProgress,
+  onResetUsed,
+  zenActive = false,
+  showTimer = true,
+  timerColor,
+}: LockInTimerProps) {
   const [timeLeft, setTimeLeft] = useState(duration * 3600);
   const [isRunning, setIsRunning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -157,8 +169,36 @@ export function LockInTimer({ duration, goal, onComplete, onProgress, onResetUse
     return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
   };
 
+  // Minimal text-only timer overlay used on the animation page. The component
+  // stays mounted so the countdown keeps running even when the full UI hides.
+  if (!showTimer) {
+    return (
+      <div
+        className="fixed inset-0 z-10 flex items-center justify-center pointer-events-none"
+        role="timer"
+        aria-live="polite"
+        aria-label={`Time remaining: ${formatTime(timeLeft)}`}
+      >
+        <div
+          className="font-mono text-7xl md:text-8xl font-bold tabular-nums tracking-tight"
+          style={timerColor ? { color: timerColor } : undefined}
+        >
+          {formatTime(timeLeft)}
+        </div>
+      </div>
+    );
+  }
+
+  // In Zen mode, once the timer starts, hidden so the ASCII UI is the only
+  // visible timer. The component stays mounted so the countdown keeps running.
+  const zenHidden = zenActive && isRunning;
+
   return (
-    <div className="flex flex-col items-center justify-center gap-8 w-full max-w-4xl mx-auto p-8">
+    <div
+      className={`flex flex-col items-center justify-center gap-8 w-full max-w-4xl mx-auto p-8 ${
+        zenHidden ? "hidden" : ""
+      }`}
+    >
       {/* Goal Display */}
       {goal && (
         <div className="neo-border-thick bg-[var(--neo-yellow)] p-6 neo-shadow w-full text-center">
