@@ -118,11 +118,10 @@ export function InteractiveSessionWidget() {
         <div className="flex items-center gap-3 mt-5">
           <button
             onClick={() => setIsRunning(!isRunning)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all active:scale-[0.98] ${
-              isRunning
-                ? "bg-neutral-800 hover:bg-neutral-700 text-white"
-                : "bg-white hover:bg-neutral-200 text-black shadow-md"
-            }`}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold transition-all active:scale-[0.98] ${isRunning
+              ? "bg-neutral-800 hover:bg-neutral-700 text-white"
+              : "bg-white hover:bg-neutral-200 text-black shadow-md"
+              }`}
           >
             {isRunning ? (
               <>
@@ -144,7 +143,6 @@ export function InteractiveSessionWidget() {
               setPenaltiesTriggered(0);
             }}
             className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#1a1a1a] hover:bg-[#252525] border border-[#2b2b2b] text-neutral-300 text-xs font-medium transition-all"
-            title="Reset Timer"
           >
             <RefreshCw className="w-3.5 h-3.5 text-neutral-400" />
             <span>Reset</span>
@@ -174,11 +172,10 @@ export function InteractiveSessionWidget() {
               <button
                 key={sound}
                 onClick={() => toggleSound(sound)}
-                className={`px-2 py-1.5 rounded-lg text-xs font-mono capitalize transition-all border ${
-                  activeSound === sound
-                    ? "bg-neutral-200 text-black border-white font-semibold"
-                    : "bg-[#181818] text-neutral-400 border-[#272727] hover:text-white hover:border-neutral-600"
-                }`}
+                className={`px-2 py-1.5 rounded-lg text-xs font-mono capitalize transition-all border ${activeSound === sound
+                  ? "bg-neutral-200 text-black border-white font-semibold"
+                  : "bg-[#181818] text-neutral-400 border-[#272727] hover:text-white hover:border-neutral-600"
+                  }`}
               >
                 {sound === "fireplace" ? "Fire Synth" : "Wind Synth"}
               </button>

@@ -45,20 +45,13 @@ export class AsciiPlayer {
       this.fps = index.fps || 24;
       this.frameInterval = 1000 / this.fps;
 
-      // Load frames in batches of 15 to avoid saturating HTTP/2 connections
-      const texts: string[] = [];
-      const batchSize = 15;
-      for (let i = 0; i < index.frames.length; i += batchSize) {
-        const chunk = index.frames.slice(i, i + batchSize);
-        const chunkTexts = await Promise.all(
-          chunk.map(async (name) => {
-            const res = await fetch(`${base}/${name}`);
-            if (!res.ok) throw new Error(`frame ${name}`);
-            return res.text();
-          })
-        );
-        texts.push(...chunkTexts);
-      }
+      const texts = await Promise.all(
+        index.frames.map(async (name) => {
+          const res = await fetch(`${base}/${name}`);
+          if (!res.ok) throw new Error(`frame ${name}`);
+          return res.text();
+        })
+      );
 
       if (this.destroyed) return false;
       this.frames = texts;
@@ -70,61 +63,10 @@ export class AsciiPlayer {
       }
       return this.frames.length > 0;
     } catch (err) {
-      console.warn("Generating built-in procedural ASCII frames:", err);
-      // Generate guaranteed built-in animated ASCII frames so Zen Mode NEVER fails
-      this.frames = this.generateBuiltinFrames(this.theme);
-      this.fps = 24;
-      this.frameInterval = 1000 / 24;
-
-      if (!this.destroyed && this.frames.length > 0) {
-        this.containerEl.innerHTML = "";
-        const pre = document.createElement("pre");
-        pre.textContent = this.frames[0];
-        this.containerEl.appendChild(pre);
-        return true;
-      }
+      console.error("Error loading ASCII frames:", err);
+      this.frames = [];
       return false;
     }
-  }
-
-  private generateBuiltinFrames(theme: ZenTheme): string[] {
-    const frames: string[] = [];
-    const width = 80;
-    const height = 24;
-
-    if (theme === "fire") {
-      const chars = [" ", ".", "^", ":", "*", "s", "S", "#", "@"];
-      for (let f = 0; f < 30; f++) {
-        let frameStr = "";
-        for (let y = 0; y < height; y++) {
-          let line = "";
-          for (let x = 0; x < width; x++) {
-            const distFromCenter = Math.abs(x - width / 2) / (width / 2);
-            const intensity = Math.max(0, 1 - y / height - distFromCenter * 0.7 + Math.sin(x * 0.3 + f * 0.4) * 0.2);
-            const charIdx = Math.min(chars.length - 1, Math.max(0, Math.floor(intensity * chars.length)));
-            line += chars[charIdx];
-          }
-          frameStr += line + "\n";
-        }
-        frames.push(frameStr);
-      }
-    } else {
-      // Rain ASCII generator
-      const rainChars = [" ", " ", " ", ".", ":", "|", "!", "i", "l", "/"];
-      for (let f = 0; f < 30; f++) {
-        let frameStr = "";
-        for (let y = 0; y < height; y++) {
-          let line = "";
-          for (let x = 0; x < width; x++) {
-            const drop = (x * 7 + (y - f * 2) * 13) % 29 === 0 ? rainChars[(x + y) % rainChars.length] : " ";
-            line += drop;
-          }
-          frameStr += line + "\n";
-        }
-        frames.push(frameStr);
-      }
-    }
-    return frames;
   }
 
   applyTheme() {
