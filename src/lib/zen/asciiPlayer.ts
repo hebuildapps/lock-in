@@ -1,4 +1,6 @@
 import type { ZenTheme } from "./types";
+import fireData from "./fireFrames.json";
+import rainData from "./rainFrames.json";
 
 export type ThemeOverlay = Record<ZenTheme, string>;
 
@@ -7,10 +9,10 @@ export const THEME_OVERLAYS: ThemeOverlay = {
   rain: "radial-gradient(circle at center, rgba(80,120,200,0.6) 0%, rgba(10,10,10,1) 85%)",
 };
 
-interface FrameIndex {
-  fps: number;
-  frames: string[];
-}
+const THEME_BUNDLED_FRAMES: Record<ZenTheme, { fps: number; frames: string[] }> = {
+  fire: fireData,
+  rain: rainData,
+};
 
 export class AsciiPlayer {
   theme: ZenTheme;
@@ -36,34 +38,26 @@ export class AsciiPlayer {
     this.applyTheme();
   }
 
+  // Instant synchronous memory load - ZERO network fetch delay
   async load(): Promise<boolean> {
     try {
-      const base = `/zen/frames/${this.theme}`;
-      const indexRes = await fetch(`${base}/index.json`);
-      if (!indexRes.ok) throw new Error(`Failed to load index.json: ${indexRes.status}`);
-      const index = (await indexRes.json()) as FrameIndex;
-      this.fps = index.fps || 24;
-      this.frameInterval = 1000 / this.fps;
+      const bundle = THEME_BUNDLED_FRAMES[this.theme];
+      if (bundle && bundle.frames && bundle.frames.length > 0) {
+        this.fps = bundle.fps || 24;
+        this.frameInterval = 1000 / this.fps;
+        this.frames = bundle.frames;
 
-      const texts = await Promise.all(
-        index.frames.map(async (name) => {
-          const res = await fetch(`${base}/${name}`);
-          if (!res.ok) throw new Error(`Failed to load frame ${name}: ${res.status}`);
-          return res.text();
-        })
-      );
-
-      if (this.destroyed) return false;
-      this.frames = texts;
-      if (this.frames.length > 0) {
-        this.containerEl.innerHTML = "";
-        const pre = document.createElement("pre");
-        pre.textContent = this.frames[0];
-        this.containerEl.appendChild(pre);
+        if (!this.destroyed && this.frames.length > 0) {
+          this.containerEl.innerHTML = "";
+          const pre = document.createElement("pre");
+          pre.textContent = this.frames[0];
+          this.containerEl.appendChild(pre);
+          return true;
+        }
       }
-      return this.frames.length > 0;
+      return false;
     } catch (err) {
-      console.error("[AsciiPlayer] Error loading ASCII frames:", err);
+      console.error("[AsciiPlayer] Error loading bundled frames:", err);
       this.frames = [];
       return false;
     }
