@@ -1,193 +1,224 @@
 "use client";
 
 import { useState } from "react";
-import { Minus, Plus } from "lucide-react";
-import type { UiMode, ZenTheme } from "@/lib/zen/types";
+import { Minus, Plus, Play, ShieldAlert, Sparkles, Volume2, Moon, Sun, ArrowLeft, Youtube } from "lucide-react";
+import type { ZenTheme } from "@/lib/zen/types";
 
 interface SessionSetupProps {
   onStart: (
     duration: number,
     goal: string,
-    mode: UiMode,
-    zenTheme: ZenTheme
+    zenTheme: ZenTheme,
+    youtubeUrl?: string
   ) => void;
+  onBackToLanding?: () => void;
+  initialYoutubeUrl?: string;
 }
 
-export function SessionSetup({ onStart }: SessionSetupProps) {
-  const [duration, setDuration] = useState(18);
+export function SessionSetup({ onStart, onBackToLanding, initialYoutubeUrl = "" }: SessionSetupProps) {
+  const [duration, setDuration] = useState(2);
+  const [durationInput, setDurationInput] = useState("2");
   const [goal, setGoal] = useState("");
-  const [uiMode, setUiMode] = useState<UiMode>("normal");
   const [zenTheme, setZenTheme] = useState<ZenTheme>("fire");
+  const [youtubeUrl, setYoutubeUrl] = useState(initialYoutubeUrl);
 
   const handleDurationChange = (increment: number) => {
-    setDuration((prev) => Math.max(1, Math.min(18, prev + increment)));
+    const next = Math.max(1, Math.min(18, duration + increment));
+    setDuration(next);
+    setDurationInput(next.toString());
+  };
+
+  const handleDurationInputChange = (val: string) => {
+    setDurationInput(val);
+    const parsed = parseInt(val, 10);
+    if (!isNaN(parsed) && parsed >= 1 && parsed <= 24) {
+      setDuration(parsed);
+    }
+  };
+
+  const handleDurationInputBlur = () => {
+    const parsed = parseInt(durationInput, 10);
+    if (isNaN(parsed) || parsed < 1) {
+      setDuration(1);
+      setDurationInput("1");
+    } else if (parsed > 24) {
+      setDuration(24);
+      setDurationInput("24");
+    } else {
+      setDuration(parsed);
+      setDurationInput(parsed.toString());
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (goal.trim()) {
-      onStart(duration, goal, uiMode, zenTheme);
+      onStart(duration, goal, zenTheme, youtubeUrl.trim());
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center gap-8 w-full max-w-4xl mx-auto p-8">
-      <div className="text-center mb-8">
-        <h1 className="text-5xl md:text-7xl pt-12 lg:text-8xl font-bold mb-4 tracking-tight">
-          LOCK-IN
+    <div className="w-full max-w-xl mx-auto py-12 px-4 sm:px-6 animate-in fade-in duration-500">
+      {/* Header */}
+      <div className="mb-10 text-center space-y-2">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#141414] border border-[#272727] text-xs font-mono text-neutral-400 mb-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+          <span>Zen Protocol Configurator</span>
+        </div>
+        <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-white">
+          Configure Your Sprint
         </h1>
-        <p className="text-xl md:text-2xl text-muted-foreground">
-          COMMIT TO DEEP WORK. NO DISTRACTIONS.
+        <p className="text-sm text-neutral-400 text-pretty">
+          Define your deliverable and lock your workspace environment in Zen Mode.
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="w-full space-y-8">
-        <div className="space-y-4">
-          <label
-            htmlFor="goal"
-            className="text-2xl font-bold block text-center"
-          >
-            WHAT&apos;S YOUR GOAL?
-          </label>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Goal Input Card */}
+        <div className="p-6 bg-[#0e0e0e] border border-[#222222] rounded-2xl space-y-3 shadow-lg">
+          <div className="flex items-center justify-between">
+            <label htmlFor="goal" className="text-xs font-mono uppercase tracking-wider text-neutral-400 flex items-center gap-1">
+              <span>Deliverable Objective</span>
+              <span className="text-amber-500 font-bold text-sm leading-none">*</span>
+            </label>
+            <span className="text-xs font-mono text-neutral-500">
+              {goal.length}/60
+            </span>
+          </div>
           <input
             id="goal"
             type="text"
             value={goal}
             onChange={(e) => setGoal(e.target.value)}
-            placeholder="COMPLETE PROJECT MILESTONE"
-            className="w-full neo-border-thick bg-card px-6 py-6 text-2xl md:text-3xl font-bold text-center uppercase placeholder:text-muted-foreground focus:outline-none focus:ring-4 focus:ring-ring"
+            placeholder="e.g. Implement database schema migrations..."
+            className="w-full px-4 py-3.5 bg-[#141414] border border-[#262626] rounded-xl text-base font-medium text-white placeholder:text-neutral-600 focus:outline-none focus:border-white/40 transition-colors"
             maxLength={60}
             required
-            aria-label="Enter your focus goal"
             autoFocus
           />
-          <p className="text-center text-sm text-muted-foreground">
-            {goal.length}/60 characters
-          </p>
         </div>
 
-        <div className="space-y-4">
-          <label className="text-2xl font-bold block text-center">
-            SESSION DURATION
+        {/* Sprint Duration Card (Editable Input + Steppers) */}
+        <div className="p-6 bg-[#0e0e0e] border border-[#222222] rounded-2xl space-y-4 shadow-lg">
+          <label className="text-xs font-mono uppercase tracking-wider text-neutral-400 block">
+            Sprint Duration
           </label>
-          <div className="flex items-center justify-center gap-4">
+          <div className="flex items-center justify-between p-4 bg-[#141414] border border-[#262626] rounded-xl">
             <button
               type="button"
               onClick={() => handleDurationChange(-1)}
               disabled={duration <= 1}
-              className="neo-border bg-muted p-4 hover:translate-x-1 hover:translate-y-1 hover:shadow-none neo-shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-10 h-10 rounded-lg bg-[#1c1c1c] hover:bg-[#282828] border border-[#303030] text-neutral-200 flex items-center justify-center transition-all disabled:opacity-30 disabled:cursor-not-allowed active:scale-95"
               aria-label="Decrease duration"
             >
-              <Minus className="w-8 h-8" />
+              <Minus className="w-4 h-4" />
             </button>
 
-            <div className="neo-border-thick bg-[var(--neo-cyan)] px-12 py-8 neo-shadow min-w-[200px]">
-              <div className="text-6xl md:text-7xl font-bold text-center tabular-nums">
-                {duration}
-              </div>
-              <div className="text-2xl font-bold text-center mt-2">
-                {duration === 1 ? "HOUR" : "HOURS"}
+            <div className="text-center flex flex-col items-center">
+              <input
+                type="number"
+                min="1"
+                max="24"
+                value={durationInput}
+                onChange={(e) => handleDurationInputChange(e.target.value)}
+                onBlur={handleDurationInputBlur}
+                className="text-4xl font-semibold font-mono text-white tabular-nums bg-transparent text-center w-24 focus:outline-none border-b border-dashed border-neutral-600 focus:border-white transition-colors"
+                aria-label="Sprint duration in hours"
+              />
+              <div className="text-xs font-mono text-neutral-400 uppercase mt-1">
+                {duration === 1 ? "Hour" : "Hours"}
               </div>
             </div>
 
             <button
               type="button"
               onClick={() => handleDurationChange(1)}
-              disabled={duration >= 18}
-              className="neo-border bg-muted p-4 hover:translate-x-1 hover:translate-y-1 hover:shadow-none neo-shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={duration >= 24}
+              className="w-10 h-10 rounded-lg bg-[#1c1c1c] hover:bg-[#282828] border border-[#303030] text-neutral-200 flex items-center justify-center transition-all disabled:opacity-30 disabled:cursor-not-allowed active:scale-95"
               aria-label="Increase duration"
             >
-              <Plus className="w-8 h-8" />
+              <Plus className="w-4 h-4" />
             </button>
           </div>
         </div>
 
-        <div className="space-y-4">
-          <label className="text-2xl font-bold block text-center">
-            SESSION MODE
+        {/* Zen Visual Matrix Theme */}
+        <div className="p-6 bg-[#0e0e0e] border border-[#222222] rounded-2xl space-y-3 shadow-lg">
+          <label className="text-xs font-mono uppercase tracking-wider text-neutral-400 block">
+            ASCII Zen Matrix Theme
           </label>
-          <div
-            className="flex flex-col sm:flex-row items-stretch justify-center gap-4"
-            role="group"
-            aria-label="Choose session mode"
-          >
+          <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
-              onClick={() => setUiMode("normal")}
-              className={`neo-border px-8 py-6 text-xl font-bold transition-all flex-1 max-w-xs mx-auto sm:mx-0 ${
-                uiMode === "normal"
-                  ? "bg-[var(--neo-yellow)] neo-shadow"
-                  : "bg-muted hover:translate-x-1 hover:translate-y-1 hover:shadow-none neo-shadow-sm"
+              onClick={() => setZenTheme("fire")}
+              className={`p-3.5 rounded-xl border text-left transition-all ${
+                zenTheme === "fire"
+                  ? "bg-amber-500/10 border-amber-500/40 text-amber-300 shadow-sm"
+                  : "bg-[#121212] border-[#222222] text-neutral-400 hover:text-white"
               }`}
-              aria-pressed={uiMode === "normal"}
             >
-              NORMAL
+              <div className="font-semibold text-sm mb-0.5">Fire Matrix</div>
+              <div className="text-xs text-neutral-400">Warm ambient visual ASCII</div>
             </button>
+
             <button
               type="button"
-              onClick={() => setUiMode("zen")}
-              className={`neo-border px-8 py-6 text-xl font-bold transition-all flex-1 max-w-xs mx-auto sm:mx-0 ${
-                uiMode === "zen"
-                  ? "bg-[var(--neo-pink)] neo-shadow"
-                  : "bg-muted hover:translate-x-1 hover:translate-y-1 hover:shadow-none neo-shadow-sm"
+              onClick={() => setZenTheme("rain")}
+              className={`p-3.5 rounded-xl border text-left transition-all ${
+                zenTheme === "rain"
+                  ? "bg-cyan-500/10 border-cyan-500/40 text-cyan-300 shadow-sm"
+                  : "bg-[#121212] border-[#222222] text-neutral-400 hover:text-white"
               }`}
-              aria-pressed={uiMode === "zen"}
             >
-              ZEN
+              <div className="font-semibold text-sm mb-0.5">Rain Matrix</div>
+              <div className="text-xs text-neutral-400">Cool soothing visual ASCII</div>
             </button>
           </div>
+        </div>
 
-          {uiMode === "zen" && (
-            <div className="flex items-center justify-center gap-3 pt-2">
-              <button
-                type="button"
-                onClick={() => setZenTheme("fire")}
-                className={`neo-border px-6 py-3 text-sm font-bold ${
-                  zenTheme === "fire" ? "bg-[var(--neo-orange)]" : "bg-muted"
-                }`}
-                aria-pressed={zenTheme === "fire"}
-              >
-                FIRE
-              </button>
-              <button
-                type="button"
-                onClick={() => setZenTheme("rain")}
-                className={`neo-border px-6 py-3 text-sm font-bold ${
-                  zenTheme === "rain" ? "bg-[var(--neo-cyan)]" : "bg-muted"
-                }`}
-                aria-pressed={zenTheme === "rain"}
-              >
-                RAIN
-              </button>
-            </div>
-          )}
-
-          <p className="text-center text-xs md:text-sm text-muted-foreground max-w-xl mx-auto leading-relaxed">
-            In session: <strong>N</strong> normal · <strong>Z</strong> zen ·{" "}
-            <strong>F</strong>/<strong>R</strong> fire/rain · <strong>M</strong>{" "}
-            mute · <strong>1–4</strong> wind/rain/fire/cafe audio
+        {/* Custom YouTube Lofi Audio URL */}
+        <div className="p-6 bg-[#0e0e0e] border border-[#222222] rounded-2xl space-y-3 shadow-lg">
+          <div className="flex items-center justify-between">
+            <label htmlFor="youtube-url" className="text-xs font-mono uppercase tracking-wider text-neutral-400 flex items-center gap-1.5">
+              <Youtube className="w-4 h-4 text-red-500" />
+              <span>Custom YouTube Lofi Audio</span>
+            </label>
+            <span className="text-[11px] font-mono text-neutral-500">Optional</span>
+          </div>
+          <input
+            id="youtube-url"
+            type="url"
+            value={youtubeUrl}
+            onChange={(e) => setYoutubeUrl(e.target.value)}
+            placeholder="Paste any YouTube video/lofi link..."
+            className="w-full px-4 py-3 bg-[#141414] border border-[#262626] rounded-xl text-xs font-mono text-white placeholder:text-neutral-600 focus:outline-none focus:border-white/40 transition-colors"
+          />
+          <p className="text-[11px] text-neutral-500 font-mono">
+            Plays automatically in background during your session.
           </p>
         </div>
 
-        <div className="text-center">
-          <button
-            type="submit"
-            disabled={!goal.trim()}
-            className="neo-border-thick bg-[var(--neo-green)] px-16 py-8 text-3xl md:text-4xl font-bold hover:translate-x-2 hover:translate-y-2 hover:shadow-none neo-shadow transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            aria-label="Start lock-in session"
-          >
-            START LOCK-IN
-          </button>
-        </div>
+        {/* Start Button */}
+        <button
+          type="submit"
+          disabled={!goal.trim()}
+          className="w-full flex items-center justify-center gap-2 py-4 px-6 rounded-2xl bg-white text-black font-semibold text-base hover:bg-neutral-200 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-xl shadow-white/5"
+        >
+          <Play className="w-4 h-4 fill-current" />
+          <span>Launch Zen Session</span>
+        </button>
       </form>
 
-      <div className="neo-border bg-[var(--neo-orange)] p-6 w-full">
-        <h3 className="text-xl font-bold mb-3">⚠️ SESSION RULES:</h3>
-        <ul className="space-y-2 text-sm md:text-base">
-          <li>✓ Fullscreen mode will be activated</li>
-          <li>✓ Leaving the tab = +2 min penalty + 30s pause</li>
-          <li>✓ Only ONE reset allowed per session</li>
-          <li>✓ Complete without reset to unlock badges</li>
+      {/* Rules Notice */}
+      <div className="mt-8 p-4 bg-[#0e0e0e] border border-[#222222] rounded-2xl space-y-2 text-xs text-neutral-400">
+        <div className="flex items-center gap-2 text-neutral-300 font-semibold font-mono">
+          <ShieldAlert className="w-3.5 h-3.5 text-amber-400" />
+          <span>PROTOCOL RULES</span>
+        </div>
+        <ul className="space-y-1 pl-5 list-disc text-neutral-400 leading-relaxed font-mono text-[11px]">
+          <li>Leaving or blurring the window activates a +2m penalty</li>
+          <li>One reset permitted per sprint session</li>
+          <li>Press <strong>M</strong> to mute, <strong>F/R</strong> to toggle Fire/Rain, <strong>1-2</strong> for wind/fireplace</li>
         </ul>
       </div>
     </div>
