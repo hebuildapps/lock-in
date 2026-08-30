@@ -1,13 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
-import type { AmbientTrack, UiMode, ZenTheme } from "@/lib/zen/types";
+import type { AmbientTrack, ZenTheme } from "@/lib/zen/types";
 import { AMBIENT_KEY_MAP } from "@/lib/zen/types";
 
 interface UseZenKeyboardOptions {
   enabled: boolean;
-  uiMode: UiMode;
-  setUiMode: (mode: UiMode) => void;
   setZenTheme: (theme: ZenTheme) => void;
   soundEnabled: boolean;
   setSoundEnabled: (enabled: boolean | ((prev: boolean) => boolean)) => void;
@@ -27,8 +25,6 @@ function isTypingTarget(target: EventTarget | null) {
 
 export function useZenKeyboard({
   enabled,
-  uiMode,
-  setUiMode,
   setZenTheme,
   soundEnabled,
   setSoundEnabled,
@@ -43,22 +39,12 @@ export function useZenKeyboard({
 
       const key = e.key.toLowerCase();
 
-      if (key === "n") {
-        e.preventDefault();
-        setUiMode("normal");
-        return;
-      }
-      if (key === "z") {
-        e.preventDefault();
-        setUiMode("zen");
-        return;
-      }
-      if (key === "f" && uiMode === "zen") {
+      if (key === "f") {
         e.preventDefault();
         setZenTheme("fire");
         return;
       }
-      if (key === "r" && uiMode === "zen") {
+      if (key === "r") {
         e.preventDefault();
         setZenTheme("rain");
         return;
@@ -78,8 +64,6 @@ export function useZenKeyboard({
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [
     enabled,
-    uiMode,
-    setUiMode,
     setZenTheme,
     soundEnabled,
     setSoundEnabled,

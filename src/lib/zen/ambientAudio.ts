@@ -81,7 +81,6 @@ class AmbientAudioEngine {
     (Object.keys(this.nodes) as AmbientTrack[]).forEach((k) => this.stop(k));
   }
 
-  /** Toggle a single track on/off. Other tracks keep playing (multi-track). */
   toggleTrack(key: AmbientTrack) {
     if (!this.soundEnabled) return null;
     if (this.nodes[key]) {
@@ -165,52 +164,6 @@ class AmbientAudioEngine {
           outGain.disconnect();
         }, 350);
       };
-    } else if (key === "rain") {
-      const hp = ctx.createBiquadFilter();
-      hp.type = "highpass";
-      hp.frequency.value = 1200;
-      const bp = ctx.createBiquadFilter();
-      bp.type = "bandpass";
-      bp.frequency.value = 2600;
-      bp.Q.value = 1.2;
-
-      const lfo = ctx.createOscillator();
-      lfo.type = "square";
-      lfo.frequency.value = 3.5;
-      const lfoGain = ctx.createGain();
-      lfoGain.gain.value = 0.18;
-      lfo.connect(lfoGain);
-      lfoGain.connect(outGain.gain);
-
-      noise.connect(hp);
-      hp.connect(bp);
-      bp.connect(outGain);
-      noise.start();
-      lfo.start();
-
-      stopFn = () => {
-        const t = ctx.currentTime;
-        outGain.gain.cancelScheduledValues(t);
-        outGain.gain.setTargetAtTime(0, t, 0.05);
-        setTimeout(() => {
-          try {
-            noise.stop();
-          } catch {
-            /* noop */
-          }
-          try {
-            lfo.stop();
-          } catch {
-            /* noop */
-          }
-          noise.disconnect();
-          hp.disconnect();
-          bp.disconnect();
-          lfo.disconnect();
-          lfoGain.disconnect();
-          outGain.disconnect();
-        }, 350);
-      };
     } else if (key === "fireplace") {
       const lp = ctx.createBiquadFilter();
       lp.type = "lowpass";
@@ -282,62 +235,6 @@ class AmbientAudioEngine {
           crackleGain.disconnect();
           outGain.disconnect();
         }, 400);
-      };
-    } else if (key === "cafe") {
-      const hum = ctx.createOscillator();
-      hum.type = "sine";
-      hum.frequency.value = 96;
-      const humGain = ctx.createGain();
-      humGain.gain.value = 0.18;
-
-      const bp = ctx.createBiquadFilter();
-      bp.type = "bandpass";
-      bp.frequency.value = 900;
-      bp.Q.value = 0.9;
-      const lfo = ctx.createOscillator();
-      lfo.type = "sine";
-      lfo.frequency.value = 0.12;
-      const lfoGain = ctx.createGain();
-      lfoGain.gain.value = 0.22;
-      lfo.connect(lfoGain);
-      lfoGain.connect(outGain.gain);
-
-      noise.connect(bp);
-      bp.connect(outGain);
-      hum.connect(humGain);
-      humGain.connect(outGain);
-      noise.start();
-      hum.start();
-      lfo.start();
-
-      stopFn = () => {
-        const t = ctx.currentTime;
-        outGain.gain.cancelScheduledValues(t);
-        outGain.gain.setTargetAtTime(0, t, 0.05);
-        setTimeout(() => {
-          try {
-            noise.stop();
-          } catch {
-            /* noop */
-          }
-          try {
-            hum.stop();
-          } catch {
-            /* noop */
-          }
-          try {
-            lfo.stop();
-          } catch {
-            /* noop */
-          }
-          noise.disconnect();
-          bp.disconnect();
-          hum.disconnect();
-          humGain.disconnect();
-          lfo.disconnect();
-          lfoGain.disconnect();
-          outGain.disconnect();
-        }, 350);
       };
     }
 
