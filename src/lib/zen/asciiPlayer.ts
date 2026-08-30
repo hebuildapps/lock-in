@@ -40,7 +40,7 @@ export class AsciiPlayer {
     try {
       const base = `/zen/frames/${this.theme}`;
       const indexRes = await fetch(`${base}/index.json`);
-      if (!indexRes.ok) throw new Error(`index.json ${indexRes.status}`);
+      if (!indexRes.ok) throw new Error(`Failed to load index.json: ${indexRes.status}`);
       const index = (await indexRes.json()) as FrameIndex;
       this.fps = index.fps || 24;
       this.frameInterval = 1000 / this.fps;
@@ -48,7 +48,7 @@ export class AsciiPlayer {
       const texts = await Promise.all(
         index.frames.map(async (name) => {
           const res = await fetch(`${base}/${name}`);
-          if (!res.ok) throw new Error(`frame ${name}`);
+          if (!res.ok) throw new Error(`Failed to load frame ${name}: ${res.status}`);
           return res.text();
         })
       );
@@ -63,7 +63,7 @@ export class AsciiPlayer {
       }
       return this.frames.length > 0;
     } catch (err) {
-      console.error("Error loading ASCII frames:", err);
+      console.error("[AsciiPlayer] Error loading ASCII frames:", err);
       this.frames = [];
       return false;
     }
