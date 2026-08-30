@@ -124,7 +124,7 @@ export function PlatformDownload({ onLaunchApp, onOpenDownload }: PlatformDownlo
             className="w-full flex items-center justify-center gap-2 py-4 px-6 rounded-2xl bg-white hover:bg-neutral-100 text-[#0f172a] font-sans font-semibold text-sm shadow-md transition-all active:scale-[0.98] cursor-pointer"
           >
             <Download className="w-4 h-4" />
-            <span>Download for Windows (.exe)</span>
+            <span>Windows Desktop (Coming Soon)</span>
           </button>
         </div>
       </div>

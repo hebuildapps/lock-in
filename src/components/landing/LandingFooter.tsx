@@ -113,7 +113,7 @@ export function LandingFooter({ onLaunchApp, onOpenDownload }: LandingFooterProp
                   strokeWidth="16"
                 />
               </svg>
-              <span>Download for Windows</span>
+              <span>Windows (Coming Soon)</span>
             </button>
           </div>
         </div>
