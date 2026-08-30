@@ -22,7 +22,7 @@ export function LandingHero({ onLaunchApp, onOpenDownload }: LandingHeroProps) {
           loop
           muted
           playsInline
-          className="w-full h-full object-cover object-center"
+          className="absolute w-[100%] h-[95%] object-cover object-center"
         >
           <source src="/gen-landingpg-illustration.mp4" type="video/mp4" />
         </video>
@@ -31,26 +31,26 @@ export function LandingHero({ onLaunchApp, onOpenDownload }: LandingHeroProps) {
       {/* Hero Content Overlay (Relay/Higgsfield layout) */}
       <div className="relative z-10 w-full max-w-6xl mx-auto px-6 sm:px-8 pt-32 sm:pt-36 pb-32 sm:pb-36 flex-1 flex flex-col justify-between">
         {/* Top Tag & Title Area */}
-        <div className="max-w-2xl space-y-5 text-left">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/50 backdrop-blur-md border border-white/20 text-xs font-mono text-neutral-200">
+        <div className="max-w-2xl space-y-5 text-left font-sans">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/50 backdrop-blur-md border border-white/20 text-xs font-geist text-neutral-200">
             <span className="w-1.5 h-1.5 rounded-full bg-[#f85121]" />
-            <span>Deep Work Protocol</span>
+            <span className="tracking-wide">Deep Work Protocol</span>
           </div>
 
-          <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold tracking-tight text-white leading-[1.05] drop-shadow-lg">
+          <h1 className="font-garamond text-4xl sm:text-5xl md:text-6xl font-normal tracking-tight text-white leading-[0.98] drop-shadow-xl">
             Real focus, <br />
-            real control.
+            <span className="italic font-serif">real control.</span>
           </h1>
 
-          <p className="text-sm sm:text-base md:text-lg text-white/90 max-w-lg font-normal leading-relaxed drop-shadow-md">
+          <p className="font-sans text-sm sm:text-base md:text-lg text-white/90 max-w-lg font-light leading-relaxed drop-shadow-md">
             The focus utility that enforces brutal accountability with tab loss penalties, procedural synthesizers, and ASCII Zen immersion.
           </p>
 
           {/* Action CTAs */}
-          <div className="flex flex-wrap items-center gap-3 pt-2">
+          <div className="flex flex-wrap items-center gap-3 pt-2 font-sans">
             <button
               onClick={onLaunchApp}
-              className="flex items-center gap-2 px-6 py-3 rounded-full bg-white hover:bg-neutral-100 text-black font-semibold text-sm shadow-2xl transition-all active:scale-95"
+              className="flex items-center gap-2 px-6 py-3 rounded-full bg-white hover:bg-neutral-100 text-black font-medium text-sm shadow-2xl transition-all active:scale-95 cursor-pointer"
             >
               <Play className="w-4 h-4 fill-current" />
               <span>Start Zen Sprint</span>
@@ -58,7 +58,7 @@ export function LandingHero({ onLaunchApp, onOpenDownload }: LandingHeroProps) {
 
             <button
               onClick={scrollToDemo}
-              className="flex items-center gap-2 px-5 py-3 rounded-full bg-black/40 hover:bg-black/60 border border-white/30 text-white font-medium text-sm backdrop-blur-md transition-all active:scale-95 shadow-lg"
+              className="flex items-center gap-2 px-5 py-3 rounded-full bg-black/40 hover:bg-black/60 border border-white/30 text-white font-medium text-sm backdrop-blur-md transition-all active:scale-95 shadow-lg cursor-pointer"
             >
               <PlayCircle className="w-4 h-4 text-neutral-200" />
               <span>How it works</span>
@@ -79,7 +79,7 @@ export function LandingHero({ onLaunchApp, onOpenDownload }: LandingHeroProps) {
 
           <div>
             <div className="text-2xl sm:text-3xl font-bold font-mono text-white tracking-tight drop-shadow">
-              0 KB
+              &lt;0 KB
             </div>
             <div className="text-xs text-white/80 font-mono mt-0.5 drop-shadow">
               Audio Bandwidth
@@ -107,13 +107,13 @@ export function LandingHero({ onLaunchApp, onOpenDownload }: LandingHeroProps) {
       </div>
 
       {/* Seamless Overlapping Blur Gradient that sits directly over the video bottom */}
-      <div className="absolute bottom-0 inset-x-0 z-20 pointer-events-none overflow-hidden">
+      <div id="hero-gradient-trigger" className="absolute bottom-0 inset-x-0 z-20 pointer-events-none overflow-hidden">
         <style dangerouslySetInnerHTML={{
           __html: `
             .gradient-overlap {
               display: block;
               width: 100%;
-              height: 240px;
+              height: 120px;
               position: relative;
             }
             .gradient-overlap:after {
