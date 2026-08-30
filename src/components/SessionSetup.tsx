@@ -65,7 +65,7 @@ export function SessionSetup({ onStart, onBackToLanding, initialYoutubeUrl = "" 
           <span className="w-1.5 h-1.5 rounded-full bg-[#f85121]" />
           <span>flocii Zen Protocol</span>
         </div>
-        <h1 className="font-garamond text-3xl sm:text-5xl font-normal tracking-tight text-white">
+        <h1 className="font-garamond text-3xl sm:text-5xl font-normal tracking-tight text-white dark:text-black">
           Configure Your Sprint
         </h1>
         <p className="text-sm text-neutral-400 text-pretty font-light">
@@ -200,7 +200,7 @@ export function SessionSetup({ onStart, onBackToLanding, initialYoutubeUrl = "" 
         <button
           type="submit"
           disabled={!goal.trim()}
-          className="w-full flex items-center justify-center gap-2 py-4 px-6 rounded-2xl bg-white text-black font-semibold text-base hover:bg-neutral-200 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-xl shadow-white/5"
+          className="w-full flex items-center justify-center gap-2 py-4 px-6 rounded-2xl bg-white dark:bg-black text-black dark:text-white font-semibold text-base hover:bg-neutral-200 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-xl shadow-white/5"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
