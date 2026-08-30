@@ -58,17 +58,17 @@ export function SessionSetup({ onStart, onBackToLanding, initialYoutubeUrl = "" 
   };
 
   return (
-    <div className="w-full max-w-xl mx-auto py-12 px-4 sm:px-6 animate-in fade-in duration-500">
+    <div className="w-full max-w-xl mx-auto py-12 px-4 sm:px-6 animate-in fade-in duration-500 font-sans">
       {/* Header */}
       <div className="mb-10 text-center space-y-2">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#141414] border border-[#272727] text-xs font-mono text-neutral-400 mb-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-          <span>Zen Protocol Configurator</span>
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#141414] border border-[#272727] text-xs font-geist text-neutral-400 mb-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#f85121]" />
+          <span>flocii Zen Protocol</span>
         </div>
-        <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-white">
+        <h1 className="font-garamond text-3xl sm:text-5xl font-normal tracking-tight text-white">
           Configure Your Sprint
         </h1>
-        <p className="text-sm text-neutral-400 text-pretty">
+        <p className="text-sm text-neutral-400 text-pretty font-light">
           Define your deliverable and lock your workspace environment in Zen Mode.
         </p>
       </div>
@@ -151,11 +151,10 @@ export function SessionSetup({ onStart, onBackToLanding, initialYoutubeUrl = "" 
             <button
               type="button"
               onClick={() => setZenTheme("fire")}
-              className={`p-3.5 rounded-xl border text-left transition-all ${
-                zenTheme === "fire"
-                  ? "bg-amber-500/10 border-amber-500/40 text-amber-300 shadow-sm"
-                  : "bg-[#121212] border-[#222222] text-neutral-400 hover:text-white"
-              }`}
+              className={`p-3.5 rounded-xl border text-left transition-all ${zenTheme === "fire"
+                ? "bg-amber-500/10 border-amber-500/40 text-amber-300 shadow-sm"
+                : "bg-[#121212] border-[#222222] text-neutral-400 hover:text-white"
+                }`}
             >
               <div className="font-semibold text-sm mb-0.5">Fire Matrix</div>
               <div className="text-xs text-neutral-400">Warm ambient visual ASCII</div>
@@ -164,11 +163,10 @@ export function SessionSetup({ onStart, onBackToLanding, initialYoutubeUrl = "" 
             <button
               type="button"
               onClick={() => setZenTheme("rain")}
-              className={`p-3.5 rounded-xl border text-left transition-all ${
-                zenTheme === "rain"
-                  ? "bg-cyan-500/10 border-cyan-500/40 text-cyan-300 shadow-sm"
-                  : "bg-[#121212] border-[#222222] text-neutral-400 hover:text-white"
-              }`}
+              className={`p-3.5 rounded-xl border text-left transition-all ${zenTheme === "rain"
+                ? "bg-cyan-500/10 border-cyan-500/40 text-cyan-300 shadow-sm"
+                : "bg-[#121212] border-[#222222] text-neutral-400 hover:text-white"
+                }`}
             >
               <div className="font-semibold text-sm mb-0.5">Rain Matrix</div>
               <div className="text-xs text-neutral-400">Cool soothing visual ASCII</div>
@@ -204,7 +202,26 @@ export function SessionSetup({ onStart, onBackToLanding, initialYoutubeUrl = "" 
           disabled={!goal.trim()}
           className="w-full flex items-center justify-center gap-2 py-4 px-6 rounded-2xl bg-white text-black font-semibold text-base hover:bg-neutral-200 active:scale-[0.98] transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-xl shadow-white/5"
         >
-          <Play className="w-4 h-4 fill-current" />
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 256 256"
+            className="w-4 h-4 shrink-0"
+          >
+            <rect width="256" height="256" fill="none" />
+            <path
+              d="M72,39.88V216.12a8,8,0,0,0,12.15,6.69l144.08-88.12a7.82,7.82,0,0,0,0-13.38L84.15,33.19A8,8,0,0,0,72,39.88Z"
+              opacity="0.2"
+              fill="currentColor"
+            />
+            <path
+              d="M72,39.88V216.12a8,8,0,0,0,12.15,6.69l144.08-88.12a7.82,7.82,0,0,0,0-13.38L84.15,33.19A8,8,0,0,0,72,39.88Z"
+              fill="none"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="16"
+            />
+          </svg>
           <span>Launch Zen Session</span>
         </button>
       </form>
