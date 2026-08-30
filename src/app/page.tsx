@@ -32,7 +32,7 @@ import type { AmbientTrack, ZenTheme } from "@/lib/zen/types";
 
 type ViewMode = "landing" | "app";
 type SessionState = "setup" | "active" | "completed" | "history";
-type SettingsTab = "sound" | "keyboard" | "about";
+type SettingsTab = "sound" | "keyboard" | "report";
 
 interface CompletedSession {
   id: string;
@@ -290,7 +290,7 @@ export default function Home() {
 
   return (
     <main
-      className={`min-h-screen relative bg-black ${isZenActive ? "zen-active" : ""}`}
+      className={`min-h-screen relative dark:bg-black bg-[#fafafa] ${isZenActive ? "zen-active" : ""}`}
       data-zen={isZenActive ? "true" : undefined}
     >
       {/* ASCII Zen Background Layer (Active during session) */}
@@ -315,30 +315,39 @@ export default function Home() {
         role="toolbar"
         aria-label="Navigation and controls"
       >
-        <button
-          onClick={() => {
-            if (isZenActive) {
-              if (!confirm("Exit active sprint and return to landing page?")) return;
-            }
-            getAmbientEngine()?.stopAll();
-            setViewMode("landing");
-            setSessionState("setup");
-            if (document.fullscreenElement) {
-              void document.exitFullscreen().catch(() => {});
-            }
-          }}
-          className="pointer-events-auto flex items-center gap-1.5 px-3 py-1.5 bg-[#121212]/80 hover:bg-[#1c1c1c] border border-[#272727] text-neutral-300 text-xs font-mono rounded-xl backdrop-blur-md transition-colors"
-          title="Return to Landing Page"
-        >
-          <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Landing</span>
-        </button>
+        <div className="pointer-events-auto flex items-center gap-2">
+          {/* Soundscape theme switcher pills (like FIRE / RAIN in inspiration image) */}
+          {isZenActive && (
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => setZenTheme("fire")}
+                className={`px-3 py-1 text-xs font-mono font-bold uppercase transition-all cursor-pointer rounded-lg ${
+                  zenTheme === "fire"
+                    ? "dark:bg-white dark:text-black dark:border-white bg-black text-white border-2 border-black"
+                    : "dark:bg-transparent dark:text-neutral-400 dark:border-neutral-700 dark:hover:text-white bg-white text-black border-2 border-black hover:bg-neutral-100"
+                }`}
+              >
+                FIRE
+              </button>
+              <button
+                onClick={() => setZenTheme("rain")}
+                className={`px-3 py-1 text-xs font-mono font-bold uppercase transition-all cursor-pointer rounded-lg ${
+                  zenTheme === "rain"
+                    ? "dark:bg-white dark:text-black dark:border-white bg-black text-white border-2 border-black"
+                    : "dark:bg-transparent dark:text-neutral-400 dark:border-neutral-700 dark:hover:text-white bg-white text-black border-2 border-black hover:bg-neutral-100"
+                }`}
+              >
+                RAIN
+              </button>
+            </div>
+          )}
+        </div>
 
         <div className="pointer-events-auto flex items-center gap-2">
           {sessionState === "setup" && (
             <button
               onClick={handleShowHistory}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-[#121212]/80 hover:bg-[#1a1a1a] border border-[#272727] text-neutral-300 text-xs font-mono rounded-xl backdrop-blur-md transition-colors"
+              className="flex items-center gap-1.5 px-3 py-1.5 dark:bg-[#121212]/80 dark:hover:bg-[#1a1a1a] dark:border-[#272727] dark:text-neutral-300 bg-white hover:bg-neutral-100 border-2 border-black text-black text-xs font-mono rounded-lg backdrop-blur-md transition-colors cursor-pointer"
               aria-label="View session history"
               title="Session History"
             >
@@ -351,7 +360,7 @@ export default function Home() {
             <>
               <button
                 onClick={toggleFullscreen}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-[#121212]/80 hover:bg-[#1a1a1a] border border-[#272727] text-neutral-300 text-xs font-mono rounded-xl backdrop-blur-md transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 dark:bg-[#121212]/80 dark:hover:bg-[#1a1a1a] dark:border-[#272727] dark:text-neutral-300 bg-white hover:bg-neutral-100 border-2 border-black text-black text-xs font-mono rounded-lg backdrop-blur-md transition-colors cursor-pointer"
                 title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
               >
                 {isFullscreen ? <Minimize className="w-3.5 h-3.5" /> : <Maximize className="w-3.5 h-3.5" />}
@@ -360,7 +369,7 @@ export default function Home() {
 
               <button
                 onClick={handleEndSessionEarly}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-red-950/40 hover:bg-red-900/60 border border-red-500/30 text-red-300 text-xs font-mono rounded-xl backdrop-blur-md transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 dark:bg-red-950/40 dark:hover:bg-red-900/60 dark:border-red-500/30 dark:text-red-300 bg-white hover:bg-red-50 border-2 border-black text-red-600 text-xs font-mono font-bold rounded-lg backdrop-blur-md transition-colors cursor-pointer"
                 title="End Sprint Early"
               >
                 <Power className="w-3.5 h-3.5" />
@@ -377,10 +386,6 @@ export default function Home() {
           <>
             <SessionSetup
               onStart={handleStartSession}
-              onBackToLanding={() => {
-                getAmbientEngine()?.stopAll();
-                setViewMode("landing");
-              }}
               initialYoutubeUrl={youtubeUrl}
             />
             <div className="mt-8 w-full">
@@ -415,10 +420,13 @@ export default function Home() {
         )}
       </div>
 
-      <FloatingControls
-        soundEnabled={soundEnabled}
-        onOpenSettings={() => openSettings("sound")}
-      />
+      {/* Floating Controls only visible during active sprint session */}
+      {isZenActive && (
+        <FloatingControls
+          soundEnabled={soundEnabled}
+          onOpenSettings={() => openSettings("sound")}
+        />
+      )}
 
       <SettingsModal
         key={settingsOpen ? "open" : "closed"}

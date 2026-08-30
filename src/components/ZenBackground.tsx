@@ -1,8 +1,26 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { AsciiPlayer, THEME_OVERLAYS } from "@/lib/zen/asciiPlayer";
 import type { ZenTheme } from "@/lib/zen/types";
+import fireData from "@/lib/zen/fireFrames.json";
+import rainData from "@/lib/zen/rainFrames.json";
+import { useTheme } from "@/components/ThemeProvider";
+
+export const THEME_OVERLAYS: Record<ZenTheme, string> = {
+  fire: "radial-gradient(circle at center, rgba(255,120,0,0.8) 0%, rgba(10,10,10,1) 85%)",
+  rain: "radial-gradient(circle at center, rgba(80,120,200,0.6) 0%, rgba(10,10,10,1) 85%)",
+};
+
+export const THEME_ASCII_COLORS: Record<ZenTheme, { light: string; dark: string }> = {
+  fire: {
+    light: "#ea580c", // Vibrant burning fire orange in light mode
+    dark: "#ff7800",  // Glowing orange flame in dark mode
+  },
+  rain: {
+    light: "#0284c7", // Refreshing crisp rain blue in light mode
+    dark: "#60a5fa",  // Ambient glowing rain blue in dark mode
+  },
+};
 
 interface ZenBackgroundProps {
   theme: ZenTheme;
@@ -15,53 +33,81 @@ export function ZenBackground({
   reducedMotion = false,
   playing = true,
 }: ZenBackgroundProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const overlayRef = useRef<HTMLDivElement>(null);
-  const playerRef = useRef<AsciiPlayer | null>(null);
+  const preRef = useRef<HTMLPreElement>(null);
+  const { theme: appTheme } = useTheme();
+
+  const isDark =
+    appTheme === "dark" ||
+    (appTheme === "system" &&
+      typeof window !== "undefined" &&
+      window.matchMedia?.("(prefers-color-scheme: dark)")?.matches);
 
   useEffect(() => {
-    const container = containerRef.current;
-    const overlay = overlayRef.current;
-    if (!container) return;
+    const frames = theme === "fire" ? fireData.frames : rainData.frames;
+    if (!frames || frames.length === 0) return;
 
-    let cancelled = false;
-    const player = new AsciiPlayer(theme, container, overlay);
-    playerRef.current = player;
+    const preEl = preRef.current;
+    if (!preEl) return;
 
-    void player.load().then((ok) => {
-      if (cancelled || !ok) return;
-      if (reducedMotion || !playing) player.showStatic();
-      else player.play();
-    });
-
-    return () => {
-      cancelled = true;
-      player.destroy();
-      playerRef.current = null;
-    };
-  }, [theme]);
-
-  useEffect(() => {
-    const player = playerRef.current;
-    if (!player) return;
-    if (reducedMotion) {
-      player.showStatic();
+    if (reducedMotion || !playing) {
+      preEl.textContent = frames[Math.min(40, frames.length - 1)];
       return;
     }
-    if (playing) player.play();
-    else player.pause();
-  }, [playing, reducedMotion]);
 
-  useEffect(() => {
-    if (overlayRef.current) {
-      overlayRef.current.style.background = THEME_OVERLAYS[theme];
-    }
-  }, [theme]);
+    let currentFrame = 0;
+    let lastTime = performance.now();
+    let reqId: number | null = null;
+    const fps = (theme === "fire" ? fireData.fps : rainData.fps) || 24;
+    const frameInterval = 1000 / fps;
+
+    preEl.textContent = frames[currentFrame];
+
+    const loop = (time: number) => {
+      reqId = requestAnimationFrame(loop);
+      const deltaTime = time - lastTime;
+      if (deltaTime >= frameInterval) {
+        lastTime = time - (deltaTime % frameInterval);
+        if (preRef.current) {
+          preRef.current.textContent = frames[currentFrame];
+        }
+        currentFrame = (currentFrame + 1) % frames.length;
+      }
+    };
+
+    reqId = requestAnimationFrame(loop);
+
+    return () => {
+      if (reqId != null) {
+        cancelAnimationFrame(reqId);
+        reqId = null;
+      }
+    };
+  }, [theme, playing, reducedMotion]);
+
+  const initialFrames = theme === "fire" ? fireData.frames : rainData.frames;
+  const initialText = initialFrames && initialFrames.length > 40 ? initialFrames[40] : "";
+  const activeColor = isDark
+    ? THEME_ASCII_COLORS[theme].dark
+    : THEME_ASCII_COLORS[theme].light;
 
   return (
     <div className="zen-layer" aria-hidden="true">
-      <div ref={containerRef} className="zen-ascii-bg" />
-      <div ref={overlayRef} className="zen-ascii-overlay" />
+      <div className="zen-ascii-bg">
+        <pre
+          ref={preRef}
+          className="select-none transition-colors duration-500 font-mono"
+          style={{ color: activeColor }}
+        >
+          {initialText}
+        </pre>
+      </div>
+      {/* Radial spotlight overlay ONLY active in dark mode to prevent murky muddy screen in light mode */}
+      {isDark && (
+        <div
+          className="zen-ascii-overlay"
+          style={{ background: THEME_OVERLAYS[theme] }}
+        />
+      )}
     </div>
   );
 }

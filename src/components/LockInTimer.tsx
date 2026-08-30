@@ -1,16 +1,16 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { Play, Pause, RotateCcw, Maximize, Minimize, AlertTriangle, ShieldAlert } from "lucide-react";
+import { useEffect, useState } from "react";
+import { AlertTriangle, ShieldAlert } from "lucide-react";
+import { useTheme } from "@/components/ThemeProvider";
 
 interface LockInTimerProps {
-  duration: number;
+  duration: number; // in minutes
   goal: string;
   onComplete: () => void;
   onProgress: (progress: number) => void;
   onResetUsed?: () => void;
   timerColor?: string;
-  showControls?: boolean;
 }
 
 export function LockInTimer({
@@ -18,107 +18,98 @@ export function LockInTimer({
   goal,
   onComplete,
   onProgress,
-  onResetUsed,
-  timerColor = "#ff7800",
 }: LockInTimerProps) {
-  const [timeLeft, setTimeLeft] = useState(duration * 3600);
-  const [isRunning, setIsRunning] = useState(true); // Active immediately on launch
-  const [isPaused, setIsPaused] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
-  const [showFullscreenWarning, setShowFullscreenWarning] = useState(false);
-  const [hasReset, setHasReset] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(duration * 60);
   const [isInterrupted, setIsInterrupted] = useState(false);
   const [penaltyCountdown, setPenaltyCountdown] = useState(0);
+  const [showFullscreenWarning, setShowFullscreenWarning] = useState(false);
+  const [isDocked, setIsDocked] = useState(false);
+  const { theme } = useTheme();
 
-  const totalSeconds = duration * 3600;
-
-  // Sync progress
+  // After 5 seconds of entering the session, smoothly glide and shrink to bottom-left corner
   useEffect(() => {
-    const progress = ((totalSeconds - timeLeft) / totalSeconds) * 100;
-    onProgress(progress);
-  }, [timeLeft, totalSeconds, onProgress]);
+    const timer = setTimeout(() => {
+      setIsDocked(true);
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, []);
 
-  // Main countdown timer (always runs active during session unless paused or in penalty)
+  const isDark =
+    theme === "dark" ||
+    (theme === "system" &&
+      typeof window !== "undefined" &&
+      window.matchMedia?.("(prefers-color-scheme: dark)")?.matches);
+
+  const totalSeconds = duration * 60;
+  const elapsedSeconds = totalSeconds - timeLeft;
+  const progressPercent = Math.min(
+    100,
+    Math.max(0, (elapsedSeconds / totalSeconds) * 100)
+  );
+
+  // Main countdown tick
   useEffect(() => {
-    if (!isRunning || isPaused || isInterrupted || penaltyCountdown > 0) {
+    if (timeLeft <= 0) {
+      onComplete();
       return;
     }
 
-    const interval = setInterval(() => {
+    if (isInterrupted) return;
+
+    const timer = setInterval(() => {
       setTimeLeft((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          setIsRunning(false);
-          onComplete();
-          return 0;
-        }
-        return prev - 1;
+        const next = prev - 1;
+        const totalSeconds = duration * 60;
+        const currentProgress = ((totalSeconds - next) / totalSeconds) * 100;
+        onProgress(Math.min(100, Math.max(0, currentProgress)));
+        return next;
       });
     }, 1000);
 
-    return () => clearInterval(interval);
-  }, [isRunning, isPaused, isInterrupted, penaltyCountdown, onComplete]);
+    return () => clearInterval(timer);
+  }, [timeLeft, isInterrupted, duration, onComplete, onProgress]);
 
-  // Penalty cooldown countdown
-  useEffect(() => {
-    if (penaltyCountdown <= 0) return;
-    const timeout = setTimeout(() => {
-      setPenaltyCountdown((prev) => prev - 1);
-    }, 1000);
-    return () => clearTimeout(timeout);
-  }, [penaltyCountdown]);
-
-  // Tab-switch visibility listener (+2 min penalty)
+  // Tab switch & visibility change detection
   useEffect(() => {
     const handleVisibilityChange = () => {
-      if (document.hidden && isRunning && !isPaused) {
+      if (document.hidden && timeLeft > 0) {
         setIsInterrupted(true);
       }
     };
 
+    const handleWindowBlur = () => {
+      if (timeLeft > 0) {
+        setIsInterrupted(true);
+      }
+    };
+
+    const handleFullscreenChange = () => {
+      if (!document.fullscreenElement && timeLeft > 0) {
+        setShowFullscreenWarning(true);
+        setTimeout(() => setShowFullscreenWarning(false), 4000);
+      }
+    };
+
     document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("blur", handleWindowBlur);
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
-  }, [isRunning, isPaused]);
-
-  // Fullscreen change listener
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      const isCurrentlyFullscreen = !!document.fullscreenElement;
-      setIsFullscreen(isCurrentlyFullscreen);
-
-      if (!isCurrentlyFullscreen && isRunning) {
-        setShowFullscreenWarning(true);
-        setTimeout(() => setShowFullscreenWarning(false), 5000);
-      }
-    };
-
-    document.addEventListener("fullscreenchange", handleFullscreenChange);
-    return () => {
+      window.removeEventListener("blur", handleWindowBlur);
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
     };
-  }, [isRunning]);
+  }, [timeLeft]);
 
-  const enterFullscreen = async () => {
-    try {
-      await document.documentElement.requestFullscreen();
-      setIsFullscreen(true);
-    } catch {
-      // ignore
+  // Penalty countdown
+  useEffect(() => {
+    if (penaltyCountdown > 0) {
+      const timer = setTimeout(() => {
+        setPenaltyCountdown((prev) => prev - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
     }
-  };
-
-  const exitFullscreen = async () => {
-    try {
-      if (document.fullscreenElement) {
-        await document.exitFullscreen();
-      }
-      setIsFullscreen(false);
-    } catch {
-      // ignore
-    }
-  };
+  }, [penaltyCountdown]);
 
   const handleResumeFromInterruption = () => {
     setTimeLeft((prev) => prev + 120);
@@ -130,29 +121,67 @@ export function LockInTimer({
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
-    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+    if (hours > 0) {
+      return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+    }
+    return `${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
   };
 
   return (
     <>
-      {/* Central JetBrains Mono Digital Clock Display for Zen Mode */}
+      {/* Central Display for Zen Mode (Smoothly glides and shrinks to bottom-left corner with gentle 1.8s easing) */}
       <div
-        className="fixed inset-0 z-20 flex flex-col items-center justify-center pointer-events-none select-none"
+        className={`fixed z-20 select-none transition-all duration-[1800ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          isDocked
+            ? "top-[calc(100%-1.25rem)] left-5 -translate-y-full translate-x-0 scale-[0.6] origin-bottom-left"
+            : "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 scale-100 origin-center"
+        }`}
         role="timer"
         aria-live="polite"
         aria-label={`Time remaining: ${formatTime(timeLeft)}`}
       >
+        {/* Exact same transparent box and dimensions for both Dark and Light themes */}
         <div
-          className="font-timer text-7xl sm:text-8xl md:text-9xl font-bold tabular-nums tracking-tight transition-colors duration-500 drop-shadow-2xl"
-          style={{ color: timerColor }}
+          onClick={() => setIsDocked(!isDocked)}
+          className={`border-2 px-10 sm:px-16 py-8 sm:py-10 shadow-none flex flex-col items-center justify-center min-w-[290px] sm:min-w-[460px] bg-transparent pointer-events-auto transition-colors duration-300 ${
+            isDark ? "border-white/80 text-white" : "border-black text-black"
+          } ${isDocked ? "cursor-pointer hover:scale-[1.03]" : ""}`}
+          title={isDocked ? "Click to expand timer" : "Click to dock timer"}
         >
-          {formatTime(timeLeft)}
-        </div>
-        {goal && (
-          <p className="mt-4 text-sm sm:text-base font-mono text-neutral-400 max-w-lg text-center px-4 truncate opacity-80">
-            {goal}
+          {/* High-contrast timer digits */}
+          <div
+            className={`font-timer text-6xl sm:text-7xl md:text-8xl font-bold tracking-tight tabular-nums ${
+              isDark ? "text-white" : "text-black"
+            }`}
+          >
+            {formatTime(timeLeft)}
+          </div>
+
+          {/* Minimalist Progress Track */}
+          <div
+            className={`w-48 sm:w-72 h-1.5 mt-6 mb-3 relative overflow-hidden rounded-full ${
+              isDark ? "bg-neutral-800" : "bg-neutral-200"
+            }`}
+          >
+            <div
+              className={`h-full transition-all duration-300 ease-out ${
+                isDark ? "bg-white" : "bg-black"
+              }`}
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
+
+          {/* Subtext info */}
+          <p
+            className={`font-mono text-[10px] sm:text-[11px] uppercase tracking-widest text-center ${
+              isDark ? "text-neutral-400" : "text-neutral-600"
+            }`}
+          >
+            {isDocked
+              ? `RUNNING · ${formatTime(timeLeft)}`
+              : `RUNNING · ${goal || "Click or ESC to exit"}`}
           </p>
-        )}
+        </div>
       </div>
 
       {/* Fullscreen Warning Badge */}
@@ -179,19 +208,6 @@ export function LockInTimer({
           >
             Accept Penalty & Resume Sprint
           </button>
-        </div>
-      )}
-
-      {/* Penalty Cooldown Display */}
-      {penaltyCountdown > 0 && (
-        <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex flex-col items-center justify-center p-6">
-          <span className="text-xs font-mono text-amber-400 uppercase tracking-widest mb-2">
-            Enforced Focus Cooldown
-          </span>
-          <div className="text-7xl sm:text-8xl font-bold font-timer text-white tabular-nums mb-3">
-            {penaltyCountdown}
-          </div>
-          <p className="text-xs text-neutral-500 font-mono">Reflect on your current sprint deliverable...</p>
         </div>
       )}
     </>

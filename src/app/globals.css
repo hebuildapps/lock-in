@@ -180,6 +180,10 @@ nextjs-portal {
   background: #0a0a0a;
 }
 
+html:not(.dark) .zen-active {
+  background: #ffffff !important;
+}
+
 .zen-layer {
   position: fixed;
   inset: 0;
@@ -187,6 +191,11 @@ nextjs-portal {
   pointer-events: none;
   overflow: hidden;
   background: #0a0a0a;
+  transition: background-color 0.3s ease;
+}
+
+html:not(.dark) .zen-layer {
+  background: #ffffff !important;
 }
 
 .zen-ascii-bg {
@@ -197,7 +206,6 @@ nextjs-portal {
   line-height: 1;
   white-space: pre;
   overflow: hidden;
-  color: #666;
   display: flex;
   align-items: center;
   justify-content: center;

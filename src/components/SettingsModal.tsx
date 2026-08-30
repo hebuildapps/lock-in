@@ -5,20 +5,23 @@ import {
   X,
   Keyboard,
   SlidersHorizontal,
-  Info,
   Volume2,
   Check,
   Youtube,
+  Bug,
+  ExternalLink,
+  MessageSquare,
 } from "lucide-react";
 import type { AmbientTrack } from "@/lib/zen/types";
 import { AMBIENT_TRACKS } from "@/lib/zen/types";
+import { EmojiReaction } from "@/components/ui/emoji-reaction";
 
-type TabId = "sound" | "keyboard" | "about";
+type TabId = "sound" | "keyboard" | "report";
 
 interface SettingsModalProps {
   open: boolean;
   onClose: () => void;
-  initialTab?: "sound" | "keyboard" | "about";
+  initialTab?: "sound" | "keyboard" | "report";
   soundEnabled: boolean;
   onSoundChange: (enabled: boolean) => void;
   activeTracks: AmbientTrack[];
@@ -34,7 +37,7 @@ interface SettingsModalProps {
 const TABS: { id: TabId; label: string; icon: typeof SlidersHorizontal }[] = [
   { id: "sound", label: "Sound & Lofi", icon: Volume2 },
   { id: "keyboard", label: "Shortcuts", icon: Keyboard },
-  { id: "about", label: "Zen Protocol", icon: Info },
+  { id: "report", label: "Report", icon: MessageSquare },
 ];
 
 const TRACK_LABELS: Record<AmbientTrack, string> = {
@@ -93,28 +96,29 @@ export function SettingsModal({
                 key={id}
                 onClick={() => setTab(id)}
                 aria-pressed={active}
-                className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
-                  active
+                className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer ${active
                     ? "bg-[#1f1f1f] text-white shadow-sm"
                     : "text-neutral-400 hover:text-neutral-200 hover:bg-[#161616]"
-                }`}
+                  }`}
               >
-                <Icon className="w-4 h-4 shrink-0" />
+                <Icon className="w-3.5 h-3.5 shrink-0" />
                 <span>{label}</span>
               </button>
             );
           })}
         </nav>
 
-        {/* Content Panel */}
-        <div className="flex-1 min-w-0 p-6 overflow-y-auto space-y-6">
-          <div className="flex items-center justify-between pb-3 border-b border-[#1c1c1c]">
-            <h2 className="text-sm font-semibold text-white tracking-tight uppercase font-mono">
-              {TABS.find((t) => t.id === tab)?.label}
-            </h2>
+        {/* Content Area */}
+        <div className="flex-1 p-6 overflow-y-auto space-y-6">
+          <div className="flex items-center justify-between pb-3 border-b border-[#222222]">
+            <h3 className="text-sm font-bold text-white tracking-tight">
+              {tab === "sound" && "Sound & Synthesizers"}
+              {tab === "keyboard" && "Keyboard Shortcuts"}
+              {tab === "report" && "Report & Feedback"}
+            </h3>
             <button
               onClick={onClose}
-              className="p-1 rounded-lg text-neutral-400 hover:text-white hover:bg-[#1a1a1a] transition-colors"
+              className="p-1.5 rounded-lg text-neutral-400 hover:text-white hover:bg-[#1f1f1f] transition-colors cursor-pointer"
               aria-label="Close settings"
             >
               <X className="w-4 h-4" />
@@ -122,29 +126,48 @@ export function SettingsModal({
           </div>
 
           {tab === "sound" && (
-            <div className="space-y-4">
+            <div className="space-y-5">
+              {/* Sound Enabled Switch */}
+              <div className="flex items-center justify-between p-4 bg-[#141414] border border-[#222222] rounded-xl">
+                <div>
+                  <div className="text-xs font-semibold text-white">Audio Synthesis</div>
+                  <div className="text-[11px] text-neutral-400">Play procedural ambience & lofi stream</div>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={soundEnabled}
+                  onClick={() => onSoundChange(!soundEnabled)}
+                  className={`w-11 h-6 rounded-full transition-colors relative cursor-pointer ${soundEnabled ? "bg-[#3D6F12]" : "bg-[#2a2a2a]"
+                    }`}
+                >
+                  <span
+                    className={`block w-4 h-4 rounded-full bg-white transition-transform ${soundEnabled ? "translate-x-6" : "translate-x-1"
+                      } `}
+                  />
+                </button>
+              </div>
+
               {/* Master Volume */}
-              <div className="p-4 bg-[#141414] border border-[#222222] rounded-xl space-y-2">
-                <div className="flex items-center justify-between text-xs text-neutral-300">
-                  <span>Audio Volume</span>
-                  <span className="font-mono">{Math.round(volume * 100)}%</span>
+              <div className="p-4 bg-[#141414] border border-[#222222] rounded-xl space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-neutral-300">Master Volume</span>
+                  <span className="text-xs font-mono text-neutral-400">{Math.round(volume * 100)}%</span>
                 </div>
                 <input
                   type="range"
-                  min={0}
-                  max={100}
-                  value={Math.round(volume * 100)}
-                  onChange={(e) => onVolumeChange(Number(e.target.value) / 100)}
-                  className="w-full h-1.5 bg-[#262626] rounded-lg appearance-none cursor-pointer accent-white"
-                  aria-label="Ambient sound volume"
+                  min="0"
+                  max="1"
+                  step="0.05"
+                  value={volume}
+                  onChange={(e) => onVolumeChange(parseFloat(e.target.value))}
+                  className="w-full accent-[#3D6F12] cursor-pointer"
                 />
               </div>
 
-              {/* Available Soundscapes (Wind & Fireplace only) */}
+              {/* Ambient Track Toggles */}
               <div className="space-y-2">
-                <div className="text-xs font-mono uppercase text-neutral-400">
-                  Available Soundscapes
-                </div>
+                <div className="text-xs font-mono uppercase text-neutral-400">Procedural Synths</div>
                 <div className="grid grid-cols-2 gap-2">
                   {AMBIENT_TRACKS.map((track) => {
                     const active = activeTracks.includes(track);
@@ -152,11 +175,10 @@ export function SettingsModal({
                       <button
                         key={track}
                         onClick={() => onToggleTrack(track)}
-                        className={`p-3 rounded-xl border text-left text-xs font-medium flex items-center justify-between transition-all ${
-                          active
+                        className={`p-3 rounded-xl border text-left text-xs font-medium flex items-center justify-between transition-all cursor-pointer ${active
                             ? "bg-[#1c1c1c] border-white/40 text-white"
                             : "bg-[#131313] border-[#222222] text-neutral-400 hover:text-white"
-                        }`}
+                          }`}
                       >
                         <span>{TRACK_LABELS[track]}</span>
                         {active && <Check className="w-3.5 h-3.5 text-emerald-400" />}
@@ -186,7 +208,7 @@ export function SettingsModal({
                   <button
                     type="button"
                     onClick={() => onYoutubeUrlChange?.(urlInput.trim())}
-                    className="px-3 py-2 bg-[#202020] hover:bg-[#2a2a2a] text-white text-xs font-mono rounded-lg transition-colors"
+                    className="px-3 py-2 bg-[#202020] hover:bg-[#2a2a2a] text-white text-xs font-mono rounded-lg transition-colors cursor-pointer"
                   >
                     Save
                   </button>
@@ -221,14 +243,33 @@ export function SettingsModal({
             </div>
           )}
 
-          {tab === "about" && (
-            <div className="p-4 bg-[#141414] border border-[#222222] rounded-xl space-y-3 text-xs text-neutral-400 leading-relaxed">
-              <p className="text-white font-medium">
-                Lock-In Zen Protocol v2.0
-              </p>
-              <p>
-                An uncompromising distraction-elimination utility designed for deep focus through tab visibility penalties, ASCII matrix visuals, and in-browser soundscapes.
-              </p>
+          {tab === "report" && (
+            <div className="space-y-5">
+              <div className="p-5 bg-[#141414] border border-[#222222] rounded-xl space-y-3">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-300 font-mono">
+                  Community & Issue Tracker
+                </h4>
+                <p className="text-xs text-neutral-400 leading-relaxed font-sans font-light">
+                  Encountered an issue or want to suggest an improvement? File a GitHub issue or send your love to support continuous engineering.
+                </p>
+
+                <div className="flex items-center gap-2 pt-2">
+                  {/* Emoji Reaction with left alignment to avoid sidebar clipping */}
+                  <EmojiReaction size="md" align="left" />
+
+                  {/* Submit an Issue Button in matching bubble pill style */}
+                  <a
+                    href="https://github.com/hebuildapps/lock-in/issues/new"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#1f1f1f] hover:bg-[#262626] border border-[#333] hover:border-[#444] text-neutral-300 hover:text-white text-xs font-mono shadow-lg transition-colors cursor-pointer"
+                  >
+                    <Bug className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Submit an Issue</span>
+                    <ExternalLink className="w-3 h-3 text-neutral-400" />
+                  </a>
+                </div>
+              </div>
             </div>
           )}
         </div>
