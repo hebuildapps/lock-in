@@ -43,16 +43,16 @@ export function LandingFaq() {
   };
 
   return (
-    <section id="faq" className="py-20 px-4 max-w-4xl mx-auto border-t border-neutral-200 scroll-mt-20">
+    <section id="faq" className="py-20 px-4 max-w-4xl mx-auto border-t border-neutral-200 scroll-mt-20 font-sans">
       <div className="text-left max-w-2xl mb-12">
-        <span className="text-xs font-mono uppercase tracking-widest text-[#f85121] font-semibold">
+        <span className="text-xs font-geist uppercase tracking-widest text-[#f85121] font-bold">
           FAQ
         </span>
-        <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-[#0f172a] mt-2 mb-3">
+        <h2 className="font-garamond text-4xl sm:text-5xl font-normal tracking-tight text-[#0f172a] mt-2 mb-3">
           Frequently asked questions
         </h2>
-        <p className="text-sm sm:text-base text-neutral-600 leading-relaxed text-pretty">
-          Everything you need to know about Lock-In architecture and mechanics.
+        <p className="font-sans text-sm sm:text-base text-neutral-600 leading-relaxed text-pretty font-light">
+          Everything you need to know about <span className="font-serif italic font-medium">flocii</span> architecture and mechanics.
         </p>
       </div>
 
@@ -66,14 +66,13 @@ export function LandingFaq() {
             >
               <button
                 onClick={() => toggle(idx)}
-                className="w-full p-6 text-left flex items-center justify-between gap-4 text-sm sm:text-base font-semibold text-[#0f172a] hover:text-[#f85121] transition-colors"
+                className="w-full p-3.5 text-left flex items-center justify-between gap-4 text-[8px] sm:text-base font-garamond text-[#0f172a] hover:text-[#f85121] transition-colors"
                 aria-expanded={isOpen}
               >
                 <span>{faq.q}</span>
                 <ChevronDown
-                  className={`w-4 h-4 text-neutral-500 transition-transform duration-300 ${
-                    isOpen ? "rotate-180 text-[#f85121]" : ""
-                  }`}
+                  className={`w-4 h-4 text-neutral-500 transition-transform duration-300 ${isOpen ? "rotate-180 text-[#f85121]" : ""
+                    }`}
                 />
               </button>
               {isOpen && (
