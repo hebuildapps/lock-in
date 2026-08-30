@@ -95,11 +95,11 @@ export function HowItWorks() {
             <div className="grid grid-cols-2 gap-3 pt-2">
               <div className="p-3 bg-white/10 border border-white/15 rounded-xl text-xs font-geist flex items-center gap-2 text-white">
                 <Flame className="w-4 h-4 text-amber-400" />
-                <span>Fire / Rain ASCII</span>
+                <span>Fire / Rain Zen</span>
               </div>
               <div className="p-3 bg-white/10 border border-white/15 rounded-xl text-xs font-geist flex items-center gap-2 text-white">
                 <Coffee className="w-4 h-4 text-cyan-300" />
-                <span>YouTube Lofi Stream</span>
+                <span>Lofi</span>
               </div>
             </div>
           </div>

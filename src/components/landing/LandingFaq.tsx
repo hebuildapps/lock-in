@@ -66,7 +66,7 @@ export function LandingFaq() {
             >
               <button
                 onClick={() => toggle(idx)}
-                className="w-full p-3.5 text-left flex items-center justify-between gap-4 text-[8px] sm:text-base font-garamond text-[#0f172a] hover:text-[#f85121] transition-colors"
+                className="w-full p-3.5 text-left flex items-center justify-between gap-4 text-[10px] sm:text-[10px] font-garamond text-[#0f172a] hover:text-[#f85121] transition-colors"
                 aria-expanded={isOpen}
               >
                 <span>{faq.q}</span>
@@ -76,7 +76,7 @@ export function LandingFaq() {
                 />
               </button>
               {isOpen && (
-                <div className="px-6 pb-6 text-xs sm:text-sm text-neutral-600 leading-relaxed border-t border-neutral-200 pt-4 animate-in fade-in duration-200">
+                <div className="px-6 pb-6 text-[9.5px] sm:text-[9.5px] text-neutral-600 leading-relaxed border-t border-neutral-200 pt-4 animate-in fade-in duration-200">
                   {faq.a}
                 </div>
               )}

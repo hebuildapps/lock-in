@@ -116,15 +116,12 @@ export function AudioTestBench() {
   };
 
   return (
-    <section id="audio-bench" className="py-24 px-4 max-w-6xl mx-auto scroll-mt-20 font-sans overflow-hidden select-none">
+    <section id="audio-bench" className="py-12 px-4 max-w-6xl mx-auto scroll-mt-20 font-sans overflow-hidden select-none">
       {/* Section Header */}
-      <div className="text-center max-w-2xl mx-auto mb-5 space-y-3">
+      <div className="text-center max-w-2xl mx-auto mb-1 space-y-2">
         <h2 className="font-garamond text-3xl sm:text-4xl font-normal tracking-tight text-[#0f172a]">
           Curated Soundtracks for Deep Work
         </h2>
-        <p className="font-sans text-sm sm:text-base text-neutral-600 leading-relaxed text-pretty font-light">
-          Infinite stream wheel. Drag or click arrows to explore curated lofi stations.
-        </p>
       </div>
 
       {/* 3D Spanned Forward Horizontal Carousel */}

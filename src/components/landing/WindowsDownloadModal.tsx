@@ -61,9 +61,6 @@ export function WindowsDownloadModal({ open, onClose }: WindowsDownloadModalProp
                   COMING SOON
                 </span>
               </div>
-              <p className="text-xs text-[#78350F] font-geist mt-0.5">
-                Native 64-bit standalone build in progress
-              </p>
             </div>
           </div>
           <button
@@ -109,7 +106,7 @@ export function WindowsDownloadModal({ open, onClose }: WindowsDownloadModalProp
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="name@work.com"
+                    placeholder="john@loremipsum.com"
                     required
                     className="flex-1 px-3.5 py-2.5 rounded-xl bg-[#FAF6F0] border border-[#d8ccb0] text-xs text-[#291D00] placeholder:text-[#998b71] focus:outline-none focus:border-[#41481b]"
                   />
@@ -117,7 +114,6 @@ export function WindowsDownloadModal({ open, onClose }: WindowsDownloadModalProp
                     type="submit"
                     className="px-4 py-2.5 rounded-xl bg-[#41481b] hover:bg-[#323814] text-white font-geist text-xs font-bold transition-all cursor-pointer flex items-center gap-1"
                   >
-                    <span>Notify Me</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -128,12 +124,6 @@ export function WindowsDownloadModal({ open, onClose }: WindowsDownloadModalProp
 
         {/* Action Button: Launch Web App */}
         <div className="flex flex-col sm:flex-row items-center justify-end gap-3 pt-2">
-          <button
-            onClick={onClose}
-            className="w-full sm:w-auto py-3 px-5 rounded-2xl bg-white border border-[#d8ccb0] hover:bg-[#FAF6F0] text-[#291D00] font-semibold text-xs transition-all cursor-pointer"
-          >
-            Close
-          </button>
           <button
             onClick={() => {
               onClose();
