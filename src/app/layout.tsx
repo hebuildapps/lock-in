@@ -6,8 +6,8 @@ import Script from "next/script";
 import { ThemeProvider } from "@/components/ThemeProvider";
 
 export const metadata: Metadata = {
-  title: "Lock-In Focus Timer",
-  description: "Neo-brutalist focus timer for deep work sessions",
+  title: "flocii • Deep Work Protocol",
+  description: "Distraction elimination utility for deep work sessions",
 };
 
 export default function RootLayout({
