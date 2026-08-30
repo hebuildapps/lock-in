@@ -146,9 +146,12 @@ export function LandingFooter({ onLaunchApp, onOpenDownload }: LandingFooterProp
           {/* Right: Systems Operational Chip & GitHub Repo */}
           <div className="flex items-center gap-5 sm:gap-6">
             {/* Live Systems Operational Chip */}
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-800 text-[11px] font-geist font-medium">
+            <div
+              className="inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-800 text-[11px] font-geist font-medium"
+              title="Systems Operational"
+            >
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Systems Operational</span>
+              <span className="hidden sm:inline">Systems Operational</span>
             </div>
 
             <a
