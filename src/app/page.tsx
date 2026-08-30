@@ -14,7 +14,7 @@ import { LandingFooter } from "@/components/landing/LandingFooter";
 import { WindowsDownloadModal } from "@/components/landing/WindowsDownloadModal";
 
 import { SessionSetup } from "@/components/SessionSetup";
-import { LockInTimer } from "@/components/LockInTimer";
+import { FlociiTimer } from "@/components/FlociiTimer";
 import {
   AchievementBadges,
   unlockAchievement,
@@ -146,7 +146,7 @@ export default function Home() {
     setSettingsOpen(false);
 
     // Auto-enter fullscreen for Zen mode
-    void document.documentElement.requestFullscreen().catch(() => {});
+    void document.documentElement.requestFullscreen().catch(() => { });
   };
 
   const handleResetUsed = () => {
@@ -166,10 +166,10 @@ export default function Home() {
       usedReset: sessionUsedReset,
     };
 
-    const existingSessions = localStorage.getItem("lockInSessions");
+    const existingSessions = localStorage.getItem("flociiSessions") || localStorage.getItem("lockInSessions");
     const sessions = existingSessions ? JSON.parse(existingSessions) : [];
     sessions.push(newSession);
-    localStorage.setItem("lockInSessions", JSON.stringify(sessions));
+    localStorage.setItem("flociiSessions", JSON.stringify(sessions));
   };
 
   const handleCompleteSession = () => {
@@ -183,7 +183,7 @@ export default function Home() {
     setCompletedSessions(newCompletedCount);
 
     if (newCompletedCount === 1) {
-      unlockAchievement("first-lockin");
+      unlockAchievement("first-flocii");
     }
 
     if (!usedReset) {
@@ -224,7 +224,7 @@ export default function Home() {
       getAmbientEngine()?.stopAll();
       setActiveTracks([]);
       if (document.fullscreenElement) {
-        void document.exitFullscreen().catch(() => {});
+        void document.exitFullscreen().catch(() => { });
       }
     }
   };
@@ -321,21 +321,19 @@ export default function Home() {
             <div className="flex items-center gap-1.5">
               <button
                 onClick={() => setZenTheme("fire")}
-                className={`px-3 py-1 text-xs font-mono font-bold uppercase transition-all cursor-pointer rounded-lg ${
-                  zenTheme === "fire"
-                    ? "dark:bg-white dark:text-black dark:border-white bg-black text-white border-2 border-black"
-                    : "dark:bg-transparent dark:text-neutral-400 dark:border-neutral-700 dark:hover:text-white bg-white text-black border-2 border-black hover:bg-neutral-100"
-                }`}
+                className={`px-3 py-1 text-xs font-mono font-bold uppercase transition-all cursor-pointer rounded-lg ${zenTheme === "fire"
+                  ? "dark:bg-white dark:text-black dark:border-white bg-black text-white border-2 border-black"
+                  : "dark:bg-transparent dark:text-neutral-400 dark:border-neutral-700 dark:hover:text-white bg-white text-black border-2 border-black hover:bg-neutral-100"
+                  }`}
               >
                 FIRE
               </button>
               <button
                 onClick={() => setZenTheme("rain")}
-                className={`px-3 py-1 text-xs font-mono font-bold uppercase transition-all cursor-pointer rounded-lg ${
-                  zenTheme === "rain"
-                    ? "dark:bg-white dark:text-black dark:border-white bg-black text-white border-2 border-black"
-                    : "dark:bg-transparent dark:text-neutral-400 dark:border-neutral-700 dark:hover:text-white bg-white text-black border-2 border-black hover:bg-neutral-100"
-                }`}
+                className={`px-3 py-1 text-xs font-mono font-bold uppercase transition-all cursor-pointer rounded-lg ${zenTheme === "rain"
+                  ? "dark:bg-white dark:text-black dark:border-white bg-black text-white border-2 border-black"
+                  : "dark:bg-transparent dark:text-neutral-400 dark:border-neutral-700 dark:hover:text-white bg-white text-black border-2 border-black hover:bg-neutral-100"
+                  }`}
               >
                 RAIN
               </button>
@@ -396,7 +394,7 @@ export default function Home() {
 
         {/* Pure Zen Mode Live Sprint with JetBrains Mono Timer */}
         {sessionState === "active" && (
-          <LockInTimer
+          <FlociiTimer
             duration={duration}
             goal={goal}
             onComplete={handleCompleteSession}

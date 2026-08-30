@@ -68,7 +68,7 @@ export function InteractiveSessionWidget() {
           <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/80" />
           <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/80" />
           <span className="ml-2 font-mono text-xs text-neutral-400">
-            sandbox://lock-in-zen
+            sandbox://flocii-zen
           </span>
         </div>
         <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[#161616] border border-[#262626] text-[11px] font-mono text-neutral-400">
@@ -111,7 +111,7 @@ export function InteractiveSessionWidget() {
         </div>
 
         <p className="text-xs text-neutral-400 font-mono mt-2">
-          {isRunning ? "Zen Session Active • Strict Lockdown" : "Ready to Lock In"}
+          {isRunning ? "Zen Session Active • Strict Lockdown" : "Ready to Flocii"}
         </p>
 
         {/* Timer Control Buttons */}

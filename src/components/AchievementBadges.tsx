@@ -14,8 +14,8 @@ interface Badge {
 export function AchievementBadges() {
   const [badges, setBadges] = useState<Badge[]>([
     {
-      id: "first-lockin",
-      name: "First Lock-In",
+      id: "first-flocii",
+      name: "First Flocii",
       description: "Complete your first deep work sprint",
       icon: Award,
       unlocked: false,
@@ -51,7 +51,7 @@ export function AchievementBadges() {
         setBadges((current) =>
           current.map((badge) => ({
             ...badge,
-            unlocked: parsed[badge.id] || false,
+            unlocked: parsed[badge.id] || (badge.id === "first-flocii" && parsed["first-lockin"]) || false,
           }))
         );
       } catch (error) {

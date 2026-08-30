@@ -41,7 +41,7 @@ export function CompletionCelebration({
             Sprint Completed
           </span>
           <h2 className="text-2xl font-bold text-white tracking-tight">
-            Deliverable Locked In
+            Deliverable Flocii&apos;d
           </h2>
           <p className="text-sm text-neutral-400 break-words font-medium">
             &ldquo;{goal}&rdquo;

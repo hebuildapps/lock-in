@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { AlertTriangle, ShieldAlert } from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
 
-interface LockInTimerProps {
+export interface FlociiTimerProps {
   duration: number; // in minutes
   goal: string;
   onComplete: () => void;
@@ -13,12 +13,14 @@ interface LockInTimerProps {
   timerColor?: string;
 }
 
-export function LockInTimer({
+export type LockInTimerProps = FlociiTimerProps;
+
+export function FlociiTimer({
   duration,
   goal,
   onComplete,
   onProgress,
-}: LockInTimerProps) {
+}: FlociiTimerProps) {
   const [timeLeft, setTimeLeft] = useState(duration * 60);
   const [isInterrupted, setIsInterrupted] = useState(false);
   const [penaltyCountdown, setPenaltyCountdown] = useState(0);
@@ -131,11 +133,10 @@ export function LockInTimer({
     <>
       {/* Central Display for Zen Mode (Smoothly glides and shrinks to bottom-left corner with gentle 1.8s easing) */}
       <div
-        className={`fixed z-20 select-none transition-all duration-[1800ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
-          isDocked
-            ? "top-[calc(100%-1.25rem)] left-5 -translate-y-full translate-x-0 scale-[0.6] origin-bottom-left"
-            : "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 scale-100 origin-center"
-        }`}
+        className={`fixed z-20 select-none transition-all duration-[1800ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${isDocked
+          ? "top-[calc(100%-1.25rem)] left-5 -translate-y-full translate-x-0 scale-[0.6] origin-bottom-left"
+          : "top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 scale-100 origin-center"
+          }`}
         role="timer"
         aria-live="polite"
         aria-label={`Time remaining: ${formatTime(timeLeft)}`}
@@ -143,39 +144,34 @@ export function LockInTimer({
         {/* Exact same transparent box and dimensions for both Dark and Light themes */}
         <div
           onClick={() => setIsDocked(!isDocked)}
-          className={`border-2 px-10 sm:px-16 py-8 sm:py-10 shadow-none flex flex-col items-center justify-center min-w-[290px] sm:min-w-[460px] bg-transparent pointer-events-auto transition-colors duration-300 ${
-            isDark ? "border-white/80 text-white" : "border-black text-black"
-          } ${isDocked ? "cursor-pointer hover:scale-[1.03]" : ""}`}
+          className={`border-2 px-10 sm:px-16 py-8 sm:py-10 shadow-none flex flex-col items-center justify-center min-w-[290px] sm:min-w-[460px] bg-transparent pointer-events-auto transition-colors duration-300 ${isDark ? "border-white/80 text-white" : "border-black text-black"
+            } ${isDocked ? "cursor-pointer hover:scale-[1.03]" : ""}`}
           title={isDocked ? "Click to expand timer" : "Click to dock timer"}
         >
           {/* High-contrast timer digits */}
           <div
-            className={`font-timer text-6xl sm:text-7xl md:text-8xl font-bold tracking-tight tabular-nums ${
-              isDark ? "text-white" : "text-black"
-            }`}
+            className={`font-timer text-6xl sm:text-7xl md:text-8xl font-bold tracking-tight tabular-nums ${isDark ? "text-white" : "text-black"
+              }`}
           >
             {formatTime(timeLeft)}
           </div>
 
           {/* Minimalist Progress Track */}
           <div
-            className={`w-48 sm:w-72 h-1.5 mt-6 mb-3 relative overflow-hidden rounded-full ${
-              isDark ? "bg-neutral-800" : "bg-neutral-200"
-            }`}
+            className={`w-48 sm:w-72 h-1.5 mt-6 mb-3 relative overflow-hidden rounded-full ${isDark ? "bg-neutral-800" : "bg-neutral-200"
+              }`}
           >
             <div
-              className={`h-full transition-all duration-300 ease-out ${
-                isDark ? "bg-white" : "bg-black"
-              }`}
+              className={`h-full transition-all duration-300 ease-out ${isDark ? "bg-white" : "bg-black"
+                }`}
               style={{ width: `${progressPercent}%` }}
             />
           </div>
 
           {/* Subtext info */}
           <p
-            className={`font-mono text-[10px] sm:text-[11px] uppercase tracking-widest text-center ${
-              isDark ? "text-neutral-400" : "text-neutral-600"
-            }`}
+            className={`font-mono text-[10px] sm:text-[11px] uppercase tracking-widest text-center ${isDark ? "text-neutral-400" : "text-neutral-600"
+              }`}
           >
             {isDocked
               ? `RUNNING · ${formatTime(timeLeft)}`
@@ -213,3 +209,5 @@ export function LockInTimer({
     </>
   );
 }
+
+export const LockInTimer = FlociiTimer;

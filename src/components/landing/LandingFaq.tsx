@@ -11,18 +11,18 @@ interface FaqItem {
 const FAQS: FaqItem[] = [
   {
     q: "How does the tab-switching penalty work?",
-    a: "Lock-In listens to the browser document visibility API and window blur events. When you navigate away from the session window to check social media or other tabs, the app adds a +2 minute penalty cooldown to your sprint and pauses the active countdown.",
+    a: "flocii listens to the browser document visibility API and window blur events. When you navigate away from the session window to check social media or other tabs, the app adds a +2 minute penalty cooldown to your sprint and pauses the active countdown.",
   },
   {
     q: "Is any user data or focus history sent to a server?",
-    a: "No. Lock-In is strictly local-first and client-side. All session records, completed milestones, and unlocked badges are saved exclusively in your browser's localStorage. Zero analytics or telemetry tracking scripts are loaded.",
+    a: "No. flocii is strictly local-first and client-side. All session records, completed milestones, and unlocked badges are saved exclusively in your browser's localStorage. Zero analytics or telemetry tracking scripts are loaded.",
   },
   {
     q: "How are ambient sounds generated and how does YouTube lofi work?",
     a: "Soundscapes are synthesized locally in real time using the browser Web Audio API (noise buffers, biquad filters, and oscillators). You can also provide any YouTube lofi link, which plays automatically in the background when your sprint begins.",
   },
   {
-    q: "Can I use Lock-In completely offline?",
+    q: "Can I use flocii completely offline?",
     a: "Yes. Once the web application or Windows binary is loaded, no internet connection is required. All timer logic, audio generation, and badge rewards work offline.",
   },
   {

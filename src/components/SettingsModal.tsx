@@ -259,7 +259,7 @@ export function SettingsModal({
 
                   {/* Submit an Issue Button in matching bubble pill style */}
                   <a
-                    href="https://github.com/hebuildapps/lock-in/issues/new"
+                    href="https://github.com/hebuildapps/flocii/issues/new"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#1f1f1f] hover:bg-[#262626] border border-[#333] hover:border-[#444] text-neutral-300 hover:text-white text-xs font-mono shadow-lg transition-colors cursor-pointer"

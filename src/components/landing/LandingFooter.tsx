@@ -42,7 +42,7 @@ export function LandingFooter({ onLaunchApp, onOpenDownload }: LandingFooterProp
           </h2>
 
           <p className="font-sans text-sm sm:text-base text-neutral-600 max-w-lg mx-auto text-pretty font-light">
-            Lock in your next sprint with uncompromised focus reflection, zen audio engines, and ruthless tab accountability.
+            Flocii your next sprint with uncompromised focus reflection, zen audio engines, and ruthless tab accountability.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 pt-4">
@@ -155,7 +155,7 @@ export function LandingFooter({ onLaunchApp, onOpenDownload }: LandingFooterProp
             </div>
 
             <a
-              href="https://github.com/hebuildapps/lock-in"
+              href="https://github.com/hebuildapps/flocii"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-[#0f172a] flex items-center gap-1.5 transition-colors font-medium font-mono text-[11px]"

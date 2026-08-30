@@ -20,7 +20,7 @@ export function SessionHistory({ onBack }: SessionHistoryProps) {
   const [sessions, setSessions] = useState<CompletedSession[]>([]);
 
   useEffect(() => {
-    const savedSessions = localStorage.getItem("lockInSessions");
+    const savedSessions = localStorage.getItem("flociiSessions") || localStorage.getItem("lockInSessions");
     if (savedSessions) {
       try {
         const parsedSessions = JSON.parse(savedSessions).map(
